@@ -129,4 +129,31 @@ public RepositoryAnalysisDTO analyzeRepository(
             result
     );
 }
+
+public String generateCandidateReport(
+        String profileData
+) {
+
+    String prompt = """
+            Analyze this GitHub developer profile.
+
+            %s
+
+            Provide:
+
+            1. Skill Level
+            2. Top Strengths
+            3. Weaknesses
+            4. Missing Skills
+            5. Hiring Recommendation
+
+            Keep response concise.
+            """
+            .formatted(profileData);
+
+    return analyzeProject(
+            "Developer Profile",
+            prompt
+    );
+}
 }

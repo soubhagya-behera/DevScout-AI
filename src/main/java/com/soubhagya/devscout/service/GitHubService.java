@@ -1,6 +1,7 @@
 package com.soubhagya.devscout.service;
 
 import com.soubhagya.devscout.dto.DeveloperScoreDTO;
+import com.soubhagya.devscout.dto.FinalReportDTO;
 import com.soubhagya.devscout.dto.GitHubRepoDTO;
 import com.soubhagya.devscout.dto.ProfileAnalysisDTO;
 import com.soubhagya.devscout.dto.TechnologyAnalysisDTO;
@@ -207,5 +208,52 @@ public DeveloperScoreDTO calculateScore(
     dto.setOverallScore(overall);
 
     return dto;
+}
+
+public FinalReportDTO generateFinalReport(
+        String username,
+        String aiAnalysis
+) {
+
+    DeveloperScoreDTO score =
+            calculateScore(username);
+
+    TechnologyAnalysisDTO tech =
+            detectTechnologies(username);
+
+    FinalReportDTO report =
+            new FinalReportDTO();
+
+    report.setUsername(username);
+
+    report.setOverallScore(
+            score.getOverallScore()
+    );
+
+    report.setBackendScore(
+            score.getBackendScore()
+    );
+
+    report.setFrontendScore(
+            score.getFrontendScore()
+    );
+
+    report.setDatabaseScore(
+            score.getDatabaseScore()
+    );
+
+    report.setAiScore(
+            score.getAiScore()
+    );
+
+    report.setTechnologies(
+            tech.getTechnologies()
+    );
+
+    report.setAiAnalysis(
+            aiAnalysis
+    );
+
+    return report;
 }
 }

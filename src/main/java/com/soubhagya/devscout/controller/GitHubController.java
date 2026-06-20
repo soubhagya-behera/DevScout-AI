@@ -1,6 +1,7 @@
 package com.soubhagya.devscout.controller;
 
 import com.soubhagya.devscout.dto.DeveloperScoreDTO;
+import com.soubhagya.devscout.dto.FinalReportDTO;
 import com.soubhagya.devscout.dto.GitHubRepoDTO;
 import com.soubhagya.devscout.dto.ProfileAnalysisDTO;
 import com.soubhagya.devscout.dto.TechnologyAnalysisDTO;
@@ -105,5 +106,50 @@ public List<RepositoryAnalysisDTO> fullAnalysis(
     }
 
     return result;
+}
+
+@GetMapping("/candidate-report/{username}")
+public String candidateReport(
+        @PathVariable String username
+) {
+
+    List<GitHubRepoDTO> repos =
+            gitHubService.getRepositories(
+                    username
+            );
+
+    StringBuilder summary =
+            new StringBuilder();
+
+    for (GitHubRepoDTO repo : repos) {
+
+        summary.append("Repository: ")
+                .append(repo.getName())
+                .append("\n");
+
+        summary.append("Description: ")
+                .append(repo.getDescription())
+                .append("\n\n");
+    }
+
+    return geminiService
+            .generateCandidateReport(
+                    summary.toString()
+            );
+}
+
+@GetMapping("/final-report/{username}")
+public FinalReportDTO finalReport(
+        @PathVariable String username
+) {
+
+    String analysis =
+            candidateReport(username);
+
+    return gitHubService
+            .generateFinalReport(
+                    username,
+                    analysis
+            );
 }
 }
