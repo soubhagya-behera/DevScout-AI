@@ -8,6 +8,9 @@ import com.soubhagya.devscout.service.GeminiService;
 import com.soubhagya.devscout.service.GitHubService;
 import org.springframework.web.bind.annotation.*;
 
+import com.soubhagya.devscout.dto.RepositoryAnalysisDTO;
+import java.util.ArrayList;
+
 import java.util.List;
 
 @RestController
@@ -64,5 +67,43 @@ public DeveloperScoreDTO score(
 public String geminiTest() {
 
     return geminiService.testGemini();
+}
+
+@GetMapping("/analyze-repo")
+public String analyzeRepo() {
+
+    return geminiService.analyzeProject(
+            "GreenCart",
+            "Full Stack Grocery Delivery Platform built with Spring Boot, React, MySQL, JWT Authentication and Razorpay Payments."
+    );
+}
+
+@GetMapping("/full-analysis/{username}")
+public List<RepositoryAnalysisDTO> fullAnalysis(
+        @PathVariable String username
+) {
+
+    List<GitHubRepoDTO> repos =
+            gitHubService.getRepositories(
+                    username
+            );
+
+    List<RepositoryAnalysisDTO> result =
+            new ArrayList<>();
+
+    for (GitHubRepoDTO repo : repos) {
+
+        if (repo.getDescription() != null) {
+
+            result.add(
+                    geminiService
+                            .analyzeRepository(
+                                    repo
+                            )
+            );
+        }
+    }
+
+    return result;
 }
 }
