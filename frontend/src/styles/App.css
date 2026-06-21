@@ -194,3 +194,40 @@ button{
 
   font-size:.8rem;
 }
+
+.analysis-card{
+
+  width:100%;
+
+  max-width:900px;
+
+  margin-top:40px;
+
+  background:#1e293b;
+
+  border-radius:20px;
+
+  padding:25px;
+
+  box-shadow:
+      0 0 25px
+      rgba(0,0,0,.3);
+}
+
+.analysis-card h2{
+
+  margin-bottom:20px;
+
+  text-align:center;
+}
+
+.analysis-card pre{
+
+  white-space:pre-wrap;
+
+  line-height:1.8;
+
+  color:#cbd5e1;
+
+  font-family:'Segoe UI',sans-serif;
+}
