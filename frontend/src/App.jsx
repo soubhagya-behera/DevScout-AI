@@ -6,6 +6,7 @@ import ScoreCard from "./components/ScoreCard";
 import TechnologyBadge from "./components/TechnologyBadge";
 import AnalysisCard from "./components/AnalysisCard";
 import LoadingSpinner from "./components/LoadingSpinner";
+import ProfileCard from "./components/ProfileCard";
 
 function App() {
   const [username, setUsername] = useState("");
@@ -63,6 +64,14 @@ function App() {
 
       {report && (
         <>
+        {report && (
+
+  <ProfileCard
+    username={username}
+    overallScore={report.overallScore}
+  />
+
+)}
           <div className="overall-section">
             <ScoreCard title="Overall Score" score={report.overallScore} />
           </div>

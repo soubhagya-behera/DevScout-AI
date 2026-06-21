@@ -365,3 +365,49 @@ button{
       transform:rotate(360deg);
   }
 }
+
+.profile-card{
+
+  width:100%;
+
+  max-width:900px;
+
+  margin-top:40px;
+
+  padding:20px;
+
+  background:
+      rgba(255,255,255,.08);
+
+  backdrop-filter:
+      blur(12px);
+
+  border-radius:20px;
+
+  display:flex;
+
+  align-items:center;
+
+  gap:20px;
+}
+
+.profile-avatar{
+
+  width:70px;
+
+  height:70px;
+
+  border-radius:50%;
+
+  background:#2563eb;
+
+  display:flex;
+
+  justify-content:center;
+
+  align-items:center;
+
+  font-size:1.8rem;
+
+  font-weight:bold;
+}
