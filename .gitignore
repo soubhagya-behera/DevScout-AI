@@ -1,0 +1,12 @@
+# IDE
+.idea/
+.vscode/
+*.iml
+
+# Build folders
+target/
+node_modules/
+
+# Secrets
+application.properties
+.env
