@@ -7,6 +7,7 @@ import TechnologyBadge from "./components/TechnologyBadge";
 import AnalysisCard from "./components/AnalysisCard";
 import LoadingSpinner from "./components/LoadingSpinner";
 import ProfileCard from "./components/ProfileCard";
+import SkillProgress from "./components/SkillProgress";
 
 function App() {
   const [username, setUsername] = useState("");
@@ -63,15 +64,11 @@ function App() {
 )}
 
       {report && (
-        <>
-        {report && (
-
-  <ProfileCard
-    username={username}
-    overallScore={report.overallScore}
-  />
-
-)}
+  <>
+    <ProfileCard
+      username={username}
+      overallScore={report.overallScore}
+    />
           <div className="overall-section">
             <ScoreCard title="Overall Score" score={report.overallScore} />
           </div>
@@ -82,6 +79,34 @@ function App() {
             <ScoreCard title="Database" score={report.databaseScore} />
             <ScoreCard title="AI" score={report.aiScore} />
           </div>
+
+          <div className="skills-section">
+
+  <h2>
+    Skill Breakdown
+  </h2>
+
+  <SkillProgress
+    title="Backend"
+    score={report.backendScore}
+  />
+
+  <SkillProgress
+    title="Frontend"
+    score={report.frontendScore}
+  />
+
+  <SkillProgress
+    title="Database"
+    score={report.databaseScore}
+  />
+
+  <SkillProgress
+    title="AI"
+    score={report.aiScore}
+  />
+
+</div>
 
           <div className="technologies-section">
             <h2>Technologies Detected</h2>
