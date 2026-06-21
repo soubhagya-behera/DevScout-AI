@@ -5,6 +5,7 @@ import "./styles/App.css";
 import ScoreCard from "./components/ScoreCard";
 import TechnologyBadge from "./components/TechnologyBadge";
 import AnalysisCard from "./components/AnalysisCard";
+import LoadingSpinner from "./components/LoadingSpinner";
 
 function App() {
   const [username, setUsername] = useState("");
@@ -17,6 +18,10 @@ function App() {
     try {
       setLoading(true);
       const data = await getReport(username);
+      window.scrollTo({
+  top: 500,
+  behavior: "smooth"
+});
       setReport(data);
     } catch (error) {
       console.error(error);
@@ -28,8 +33,23 @@ function App() {
 
   return (
     <div className="app">
-      <h1 className="title">DevScout AI</h1>
-      <p className="subtitle">AI-Powered GitHub Profile Analyzer</p>
+      <div className="hero">
+
+  <h1 className="title">
+    DevScout AI
+  </h1>
+
+  <h2 className="hero-heading">
+    Analyze Any GitHub Developer
+    with AI-Powered Insights
+  </h2>
+
+  <p className="subtitle">
+    Technology Detection • Developer Scoring •
+    AI Recommendations
+  </p>
+
+</div>
 
       <SearchBar
         username={username}
@@ -37,7 +57,9 @@ function App() {
         handleAnalyze={handleAnalyze}
       />
 
-      {loading && <h2>Analyzing...</h2>}
+      {loading && (
+  <LoadingSpinner />
+)}
 
       {report && (
         <>

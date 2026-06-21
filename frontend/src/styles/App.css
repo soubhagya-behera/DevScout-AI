@@ -8,6 +8,15 @@ body{
   font-family:'Segoe UI',sans-serif;
   background:#0f172a;
   color:white;
+  background:
+      linear-gradient(
+          135deg,
+          #0f172a,
+          #1e293b,
+          #312e81
+      );
+
+  min-height:100vh;
 }
 
 .app{
@@ -34,18 +43,35 @@ body{
 }
 
 input{
-  width:300px;
-  padding:12px;
+
+  width:320px;
+
+  padding:14px 16px;
+
   border:none;
-  border-radius:10px;
+
+  border-radius:12px;
+
   outline:none;
+
+  font-size:1rem;
 }
 
 button{
-  padding:12px 20px;
+
+  background:#2563eb;
+
+  color:white;
+
+  padding:14px 22px;
+
   border:none;
-  border-radius:10px;
+
+  border-radius:12px;
+
   cursor:pointer;
+
+  font-weight:600;
 }
 
 .overall-section{
@@ -69,7 +95,15 @@ button{
 
 .score-card{
 
-  background:#1e293b;
+  background:
+      rgba(255,255,255,.08);
+
+  backdrop-filter:
+      blur(12px);
+
+  border:
+      1px solid
+      rgba(255,255,255,.1);
 
   padding:25px;
 
@@ -77,9 +111,13 @@ button{
 
   text-align:center;
 
-  box-shadow:
-      0 0 20px
-      rgba(0,0,0,.3);
+  transition:.3s;
+}
+
+.score-card:hover{
+
+  transform:
+      translateY(-5px);
 }
 
 .score-card h3{
@@ -230,4 +268,100 @@ button{
   color:#cbd5e1;
 
   font-family:'Segoe UI',sans-serif;
+}
+
+.hero{
+
+  text-align:center;
+
+  margin-bottom:40px;
+}
+
+.hero-heading{
+
+  margin-top:15px;
+
+  font-size:2rem;
+
+  max-width:700px;
+
+  line-height:1.3;
+}
+
+.subtitle{
+
+  margin-top:15px;
+
+  color:#94a3b8;
+}
+
+@media(max-width:768px){
+
+  .title{
+      font-size:2rem;
+  }
+
+  .hero-heading{
+      font-size:1.4rem;
+  }
+
+  .search-container{
+
+      flex-direction:column;
+
+      width:100%;
+  }
+
+  input{
+
+      width:100%;
+  }
+
+  button{
+
+      width:100%;
+  }
+
+}
+
+.loading-container{
+
+  margin-top:40px;
+
+  display:flex;
+
+  flex-direction:column;
+
+  align-items:center;
+
+  gap:15px;
+}
+
+.spinner{
+
+  width:50px;
+
+  height:50px;
+
+  border:5px solid
+      rgba(255,255,255,.2);
+
+  border-top:5px solid
+      #2563eb;
+
+  border-radius:50%;
+
+  animation:
+      spin 1s linear infinite;
+}
+
+@keyframes spin{
+
+  from{
+      transform:rotate(0deg);
+  }
+
+  to{
+      transform:rotate(360deg);
+  }
 }
