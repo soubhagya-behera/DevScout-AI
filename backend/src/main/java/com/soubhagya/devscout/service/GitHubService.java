@@ -168,44 +168,102 @@ public DeveloperScoreDTO calculateScore(
     TechnologyAnalysisDTO techData =
             detectTechnologies(username);
 
-    var techs =
+    Map<String,Integer> techs =
             techData.getTechnologies();
 
-    int backend = 0;
-    int frontend = 0;
-    int database = 0;
-    int ai = 0;
+    int backend = 20;
+    int frontend = 20;
+    int database = 20;
+    int ai = 20;
 
-    if(techs.containsKey("Spring Boot"))
-        backend += 35;
+    backend +=
+            techs.getOrDefault(
+                    "Spring Boot",
+                    0
+            ) * 10;
 
-    if(techs.containsKey("JWT"))
-        backend += 15;
+    backend +=
+            techs.getOrDefault(
+                    "JWT",
+                    0
+            ) * 5;
 
-    if(techs.containsKey("JDBC"))
-        backend += 10;
+    backend +=
+            techs.getOrDefault(
+                    "JDBC",
+                    0
+            ) * 5;
 
-    if(techs.containsKey("React"))
-        frontend += 40;
+    frontend +=
+            techs.getOrDefault(
+                    "React",
+                    0
+            ) * 15;
 
-    if(techs.containsKey("MySQL"))
-        database += 40;
+    database +=
+            techs.getOrDefault(
+                    "MySQL",
+                    0
+            ) * 10;
 
-    if(techs.containsKey("Gemini API"))
-        ai += 40;
+    ai +=
+            techs.getOrDefault(
+                    "Gemini API",
+                    0
+            ) * 15;
+
+    backend =
+            Math.min(
+                    backend,
+                    100
+            );
+
+    frontend =
+            Math.min(
+                    frontend,
+                    100
+            );
+
+    database =
+            Math.min(
+                    database,
+                    100
+            );
+
+    ai =
+            Math.min(
+                    ai,
+                    100
+            );
 
     int overall =
-            (backend + frontend +
-                    database + ai) / 4;
+            (backend +
+                    frontend +
+                    database +
+                    ai) / 4;
 
     DeveloperScoreDTO dto =
             new DeveloperScoreDTO();
 
-    dto.setBackendScore(backend);
-    dto.setFrontendScore(frontend);
-    dto.setDatabaseScore(database);
-    dto.setAiScore(ai);
-    dto.setOverallScore(overall);
+    dto.setBackendScore(
+            backend
+    );
+
+    dto.setFrontendScore(
+            frontend
+    );
+
+    dto.setDatabaseScore(
+            database
+    );
+
+    dto.setAiScore(
+            ai
+    );
+
+    dto.setOverallScore(
+            overall
+    );
 
     return dto;
 }

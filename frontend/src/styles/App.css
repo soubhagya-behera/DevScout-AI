@@ -1,3 +1,11 @@
+html,
+body,
+#root{
+
+  width:100%;
+  overflow-x:hidden;
+}
+
 *{
   margin:0;
   padding:0;
@@ -21,11 +29,15 @@ body{
 
 .app{
   min-height:100vh;
+  width:100%;
+
   display:flex;
   flex-direction:column;
   align-items:center;
-  justify-content:center;
+
   gap:20px;
+
+  padding:30px 15px;
 }
 
 .title{
@@ -506,4 +518,55 @@ button{
 .download-btn:hover {
 
   background: #15803d;
+}
+
+.profile-card,
+.skills-section,
+.candidate-summary,
+.analysis-card,
+.overall-section,
+.scores-grid{
+
+  width:100%;
+  max-width:900px;
+
+  padding-left:15px;
+  padding-right:15px;
+}
+
+@media(max-width:768px){
+
+  .app{
+      padding:20px 12px;
+  }
+
+  .profile-card{
+      width:100%;
+  }
+
+  .skills-section{
+      width:100%;
+  }
+
+  .technologies-section{
+      width:100%;
+  }
+
+  .candidate-summary{
+      width:100%;
+  }
+
+  .scores-grid{
+
+      grid-template-columns:1fr;
+  }
+}
+
+.candidate-summary pre{
+
+  white-space:pre-wrap;
+
+  word-break:break-word;
+
+  overflow-wrap:break-word;
 }
