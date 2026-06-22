@@ -8,6 +8,8 @@ import AnalysisCard from "./components/AnalysisCard";
 import LoadingSpinner from "./components/LoadingSpinner";
 import ProfileCard from "./components/ProfileCard";
 import SkillProgress from "./components/SkillProgress";
+import CandidateSummary from "./components/CandidateSummary";
+import { downloadReport } from "./services/pdfService";
 
 function App() {
   const [username, setUsername] = useState("");
@@ -21,9 +23,9 @@ function App() {
       setLoading(true);
       const data = await getReport(username);
       window.scrollTo({
-  top: 500,
-  behavior: "smooth"
-});
+        top: 500,
+        behavior: "smooth",
+      });
       setReport(data);
     } catch (error) {
       console.error(error);
@@ -36,22 +38,16 @@ function App() {
   return (
     <div className="app">
       <div className="hero">
-
-  <h1 className="title">
-    DevScout AI
-  </h1>
-
-  <h2 className="hero-heading">
-    Analyze Any GitHub Developer
-    with AI-Powered Insights
-  </h2>
-
-  <p className="subtitle">
-    Technology Detection • Developer Scoring •
-    AI Recommendations
-  </p>
-
-</div>
+        <h1 className="title">DevScout AI</h1>
+        <h2 className="hero-heading">
+          Analyze Any GitHub Developer
+          <br />
+          with AI-Powered Insights
+        </h2>
+        <p className="subtitle">
+          Technology Detection • Developer Scoring • AI Recommendations
+        </p>
+      </div>
 
       <SearchBar
         username={username}
@@ -59,16 +55,11 @@ function App() {
         handleAnalyze={handleAnalyze}
       />
 
-      {loading && (
-  <LoadingSpinner />
-)}
+      {loading && <LoadingSpinner />}
 
       {report && (
-  <>
-    <ProfileCard
-      username={username}
-      overallScore={report.overallScore}
-    />
+        <>
+          <ProfileCard username={username} overallScore={report.overallScore} />
           <div className="overall-section">
             <ScoreCard title="Overall Score" score={report.overallScore} />
           </div>
@@ -81,32 +72,12 @@ function App() {
           </div>
 
           <div className="skills-section">
-
-  <h2>
-    Skill Breakdown
-  </h2>
-
-  <SkillProgress
-    title="Backend"
-    score={report.backendScore}
-  />
-
-  <SkillProgress
-    title="Frontend"
-    score={report.frontendScore}
-  />
-
-  <SkillProgress
-    title="Database"
-    score={report.databaseScore}
-  />
-
-  <SkillProgress
-    title="AI"
-    score={report.aiScore}
-  />
-
-</div>
+            <h2>Skill Breakdown</h2>
+            <SkillProgress title="Backend" score={report.backendScore} />
+            <SkillProgress title="Frontend" score={report.frontendScore} />
+            <SkillProgress title="Database" score={report.databaseScore} />
+            <SkillProgress title="AI" score={report.aiScore} />
+          </div>
 
           <div className="technologies-section">
             <h2>Technologies Detected</h2>
@@ -117,10 +88,16 @@ function App() {
             </div>
           </div>
 
-          <AnalysisCard analysis={report.aiAnalysis} />
+          <CandidateSummary analysis={report.aiAnalysis} />
+
+          <button
+            className="download-btn"
+            onClick={() => downloadReport(username, report)}
+          >
+            Download Report
+          </button>
         </>
       )}
-
     </div>
   );
 }

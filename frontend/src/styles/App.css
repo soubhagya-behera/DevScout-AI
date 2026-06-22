@@ -481,3 +481,29 @@ button{
 
   transition:1s;
 }
+
+.download-btn {
+
+  margin-top: 25px;
+
+  background: #16a34a;
+
+  color: white;
+
+  border: none;
+
+  padding: 14px 24px;
+
+  border-radius: 12px;
+
+  cursor: pointer;
+
+  font-weight: 600;
+
+  margin-bottom: 40px;
+}
+
+.download-btn:hover {
+
+  background: #15803d;
+}
