@@ -36,3 +36,4 @@ export const getRepoAnalysis =
 
     return response.data;
 };
+

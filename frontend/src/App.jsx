@@ -9,8 +9,9 @@ import SkillProgress from "./components/SkillProgress";
 import CandidateSummary from "./components/CandidateSummary";
 import { downloadReport } from "./services/pdfService";
 import ProfileInfoCard from "./components/ProfileInfoCard";
-import { getReport, getProfile } from "./services/api";
 import HiringCard from "./components/HiringCard";
+import { getReport, getProfile } from "./services/api";
+
 
 function App() {
   const [username, setUsername] = useState("");
@@ -31,6 +32,7 @@ function App() {
 setProfile(
   profileData
 );
+
 
 const data =
   await getReport(
@@ -107,6 +109,7 @@ const data =
               ))}
             </div>
           </div>
+
 
           <CandidateSummary analysis={report.aiAnalysis} />
 

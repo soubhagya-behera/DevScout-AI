@@ -12,4 +12,9 @@ public class GitHubRepoDTO {
     private String language;
 
     private int stargazers_count;
+
+    public int getStars() {
+    return stargazers_count;
 }
+}
+

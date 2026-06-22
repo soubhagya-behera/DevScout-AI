@@ -17,7 +17,8 @@ import java.util.List;
 import java.util.Map;
 
 import com.soubhagya.devscout.dto.GitHubProfileDTO;
-import com.soubhagya.devscout.dto.RepositoryCardDTO;
+
+import java.util.ArrayList;
 
 @Service
 public class GitHubService {
@@ -352,23 +353,4 @@ public FinalReportDTO generateFinalReport(
 
         return dto;
     }
-
-    public List<RepositoryCardDTO> getRepositoryCards(
-        String username
-) {
-
-    List<GitHubRepoDTO> repos =
-            getRepositories(username);
-
-    return repos.stream()
-            .map(repo ->
-                    new RepositoryCardDTO(
-                            repo.getName(),
-                            repo.getDescription(),
-                            repo.getLanguage(),
-                            repo.getStargazers_count()
-                    )
-            )
-            .toList();
-}
 }
