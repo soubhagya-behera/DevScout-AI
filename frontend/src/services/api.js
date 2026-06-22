@@ -25,3 +25,14 @@ export const getProfile = async (
 
   return response.data;
 };
+
+export const getRepoAnalysis =
+  async (username) => {
+
+    const response =
+      await axios.get(
+        `http://localhost:8080/api/github/repos/${username}`
+      );
+
+    return response.data;
+};

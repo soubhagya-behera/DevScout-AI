@@ -10,6 +10,7 @@ import CandidateSummary from "./components/CandidateSummary";
 import { downloadReport } from "./services/pdfService";
 import ProfileInfoCard from "./components/ProfileInfoCard";
 import { getReport, getProfile } from "./services/api";
+import HiringCard from "./components/HiringCard";
 
 function App() {
   const [username, setUsername] = useState("");
@@ -78,6 +79,7 @@ const data =
 
         
           <ProfileCard username={username} overallScore={report.overallScore} />
+          <HiringCard />
           <div className="overall-section">
             <ScoreCard title="Overall Score" score={report.overallScore} />
           </div>
