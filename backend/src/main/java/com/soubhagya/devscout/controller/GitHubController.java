@@ -14,6 +14,8 @@ import java.util.ArrayList;
 
 import java.util.List;
 
+import com.soubhagya.devscout.dto.GitHubProfileDTO;
+
 @RestController
 @RequestMapping("/api/github")
 public class GitHubController {
@@ -151,5 +153,15 @@ public FinalReportDTO finalReport(
                     username,
                     analysis
             );
+}
+
+@GetMapping("/profile/{username}")
+public GitHubProfileDTO profile(
+        @PathVariable String username
+) {
+
+    return gitHubService.getProfile(
+            username
+    );
 }
 }

@@ -16,6 +16,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.soubhagya.devscout.dto.GitHubProfileDTO;
+
 @Service
 public class GitHubService {
 
@@ -314,4 +316,39 @@ public FinalReportDTO generateFinalReport(
 
     return report;
 }
+
+    public GitHubProfileDTO getProfile(
+            String username
+    ) {
+
+        ProfileAnalysisDTO analysis =
+                analyzeProfile(username);
+
+        GitHubProfileDTO dto =
+                new GitHubProfileDTO();
+
+        dto.setUsername(username);
+
+        dto.setTotalRepositories(
+                analysis.getTotalRepositories()
+        );
+
+        String primaryLanguage =
+                analysis.getLanguages()
+                        .entrySet()
+                        .stream()
+                        .max(
+                                Map.Entry.comparingByValue()
+                        )
+                        .map(
+                                Map.Entry::getKey
+                        )
+                        .orElse("Unknown");
+
+        dto.setPrimaryLanguage(
+                primaryLanguage
+        );
+
+        return dto;
+    }
 }

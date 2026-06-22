@@ -581,3 +581,27 @@ button{
 
   font-size: 15px;
 }
+
+.profile-info-card{
+
+  max-width:600px;
+
+  margin:30px auto;
+
+  padding:25px;
+
+  border-radius:20px;
+
+  background:rgba(255,255,255,0.08);
+
+  backdrop-filter:blur(12px);
+
+  color:white;
+
+  text-align:left;
+}
+
+.profile-info-card h2{
+
+  margin-bottom:20px;
+}

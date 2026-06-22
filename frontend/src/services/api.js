@@ -13,3 +13,15 @@ export const getReport =
 
     return response.data;
 };
+
+export const getProfile = async (
+  username
+) => {
+
+  const response =
+    await axios.get(
+      `http://localhost:8080/api/github/profile/${username}`
+    );
+
+  return response.data;
+};

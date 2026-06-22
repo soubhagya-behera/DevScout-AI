@@ -1,19 +1,20 @@
 import { useState } from "react";
 import SearchBar from "./components/SearchBar";
-import { getReport } from "./services/api";
 import "./styles/App.css";
 import ScoreCard from "./components/ScoreCard";
 import TechnologyBadge from "./components/TechnologyBadge";
-import AnalysisCard from "./components/AnalysisCard";
 import LoadingSpinner from "./components/LoadingSpinner";
 import ProfileCard from "./components/ProfileCard";
 import SkillProgress from "./components/SkillProgress";
 import CandidateSummary from "./components/CandidateSummary";
 import { downloadReport } from "./services/pdfService";
+import ProfileInfoCard from "./components/ProfileInfoCard";
+import { getReport, getProfile } from "./services/api";
 
 function App() {
   const [username, setUsername] = useState("");
   const [report, setReport] = useState(null);
+  const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(false);
 
   const handleAnalyze = async () => {
@@ -21,7 +22,19 @@ function App() {
 
     try {
       setLoading(true);
-      const data = await getReport(username);
+      const profileData =
+  await getProfile(
+    username
+  );
+
+setProfile(
+  profileData
+);
+
+const data =
+  await getReport(
+    username
+  );
       window.scrollTo({
         top: 500,
         behavior: "smooth",
@@ -59,6 +72,11 @@ function App() {
 
       {report && (
         <>
+        <ProfileInfoCard
+      profile={profile}
+    />
+
+        
           <ProfileCard username={username} overallScore={report.overallScore} />
           <div className="overall-section">
             <ScoreCard title="Overall Score" score={report.overallScore} />
@@ -97,6 +115,7 @@ function App() {
             Download Report
           </button>
         </>
+        
       )}
     </div>
   );
