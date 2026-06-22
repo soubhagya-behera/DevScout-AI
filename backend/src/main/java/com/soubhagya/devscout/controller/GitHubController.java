@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.soubhagya.devscout.dto.GitHubProfileDTO;
+import com.soubhagya.devscout.dto.RepositoryCardDTO;
 
 @RestController
 @RequestMapping("/api/github")
@@ -163,5 +164,16 @@ public GitHubProfileDTO profile(
     return gitHubService.getProfile(
             username
     );
+}
+
+@GetMapping("/repos/{username}")
+public List<RepositoryCardDTO> repos(
+        @PathVariable String username
+) {
+
+    return gitHubService
+            .getRepositoryCards(
+                    username
+            );
 }
 }
