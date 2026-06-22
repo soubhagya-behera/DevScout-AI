@@ -73,6 +73,32 @@ export const downloadReport = (
     y += 10;
   });
 
+  y += 10;
+
+doc.setFontSize(16);
+
+doc.text(
+  "AI Analysis",
+  20,
+  y
+);
+
+y += 10;
+
+doc.setFontSize(10);
+
+const lines =
+  doc.splitTextToSize(
+    report.aiAnalysis,
+    170
+  );
+
+doc.text(
+  lines,
+  20,
+  y
+);
+
   doc.save(
     `${username}_report.pdf`
   );

@@ -137,21 +137,33 @@ public String generateCandidateReport(
     try {
 
         String prompt = """
-                Analyze this GitHub developer profile.
+Analyze this GitHub developer profile.
 
-                %s
+%s
 
-                Provide:
+Return EXACTLY in this format:
 
-                1. Skill Level
-                2. Top Strengths
-                3. Weaknesses
-                4. Missing Skills
-                5. Hiring Recommendation
+LEVEL: <one line>
 
-                Keep response concise.
-                """
-                .formatted(profileData);
+TOP_STRENGTHS:
+- point
+- point
+- point
+- point
+
+IMPROVEMENTS:
+- point
+- point
+- point
+
+HIRING_RECOMMENDATION:
+<one short sentence>
+
+Keep response under 100 words.
+No markdown.
+No explanations.
+"""
+.formatted(profileData);
 
         return analyzeProject(
                 "Developer Profile",
