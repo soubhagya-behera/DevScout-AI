@@ -75,16 +75,25 @@ const data =
 
       {report && (
         <>
+        <h2 className="section-title">
+  Developer Overview
+</h2>
         <ProfileInfoCard
       profile={profile}
     />
 
         
           <ProfileCard username={username} overallScore={report.overallScore} />
-          <HiringCard />
+  
           <div className="overall-section">
             <ScoreCard title="Overall Score" score={report.overallScore} />
           </div>
+
+          <div className="section-divider"></div>
+
+          <h2 className="section-title">
+  Technical Assessment
+</h2>
 
           <div className="scores-grid">
             <ScoreCard title="Backend" score={report.backendScore} />
@@ -94,6 +103,7 @@ const data =
           </div>
 
           <div className="skills-section">
+
             <h2>Skill Breakdown</h2>
             <SkillProgress title="Backend" score={report.backendScore} />
             <SkillProgress title="Frontend" score={report.frontendScore} />
@@ -101,17 +111,36 @@ const data =
             <SkillProgress title="AI" score={report.aiScore} />
           </div>
 
-          <div className="technologies-section">
-            <h2>Technologies Detected</h2>
-            <div className="tech-grid">
-              {Object.entries(report.technologies).map(([tech, count]) => (
-                <TechnologyBadge key={tech} tech={tech} count={count} />
-              ))}
-            </div>
-          </div>
+          <div className="section-divider"></div>
 
+          <h2 className="section-title">
+  Technology Stack
+</h2>
+
+      <div className="technologies-section">
+  <div className="tech-grid">
+    {Object.entries(report.technologies).map(
+      ([tech, count]) => (
+        <TechnologyBadge
+          key={tech}
+          tech={tech}
+          count={count}
+        />
+      )
+    )}
+  </div>
+</div>    
+
+<div className="section-divider"></div>
+
+          <h2 className="section-title">
+  AI Recruiter Summary
+</h2>
 
           <CandidateSummary analysis={report.aiAnalysis} />
+
+<div className="section-divider"></div>
+          <HiringCard />
 
           <button
             className="download-btn"
