@@ -71,7 +71,7 @@ const data =
   </div>
 
   <h1 className="title">
-    GitHire AI
+    DevScout AI
   </h1>
 
   <h2 className="hero-heading">
