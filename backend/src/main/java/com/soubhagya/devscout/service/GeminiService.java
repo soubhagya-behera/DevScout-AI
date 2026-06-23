@@ -146,20 +146,20 @@ Return EXACTLY in this format:
 LEVEL: <one line>
 
 TOP_STRENGTHS:
-- point
-- point
-- point
-- point
+- point 1
+- point 2
+- point 3
+- point 4
 
 IMPROVEMENTS:
-- point
-- point
-- point
+- point 1
+- point 2
+- point 3
 
 HIRING_RECOMMENDATION:
-<one short sentence>
+<one short line>
 
-Keep response under 100 words.
+Keep response under 80 words.
 No markdown.
 No explanations.
 """

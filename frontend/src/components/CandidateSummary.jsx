@@ -1,11 +1,18 @@
 function CandidateSummary({ analysis }) {
+
   return (
     <div className="candidate-summary">
-      <h2>Candidate Summary</h2>
-      <div className="summary-content">
-  {analysis}
-</div>
+
+      <h2>
+        Candidate Summary
+      </h2>
+
+      <pre>
+        {analysis}
+      </pre>
+
     </div>
   );
 }
+
 export default CandidateSummary;

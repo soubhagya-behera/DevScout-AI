@@ -11,19 +11,20 @@ function ProfileInfoCard({
       </h2>
 
       <p>
-        <strong>Username:</strong>
+        <strong>👤 Username:</strong>
         {" "}
         {profile.username}
       </p>
 
       <p>
-        <strong>Repositories:</strong>
+        <strong>📁 Repositories:</strong>
         {" "}
         {profile.totalRepositories}
       </p>
 
       <p>
-        <strong>Primary Language:</strong>
+        <strong>💻 Primary Language:
+</strong>
         {" "}
         {profile.primaryLanguage}
       </p>
