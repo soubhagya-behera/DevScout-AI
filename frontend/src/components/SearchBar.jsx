@@ -16,10 +16,11 @@ function SearchBar({
       />
 
       <button
-        onClick={handleAnalyze}
-      >
-        Analyze
-      </button>
+  className="analyze-btn"
+  onClick={handleAnalyze}
+>
+  ⚡ Analyze Profile
+</button>
 
     </div>
   );

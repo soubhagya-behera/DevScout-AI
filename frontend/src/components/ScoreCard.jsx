@@ -1,32 +1,54 @@
-function ScoreCard({
-  title,
-  score
-}) {
+function ScoreCard({ title, score }) {
+
+  const getLevel = () => {
+
+    if(score >= 80)
+      return "Expert";
+
+    if(score >= 60)
+      return "Advanced";
+
+    if(score >= 40)
+      return "Intermediate";
+
+    return "Beginner";
+  };
+
+  const getIcon = () => {
+
+    if(title === "Backend")
+      return "⚙️";
+
+    if(title === "Frontend")
+      return "🎨";
+
+    if(title === "Database")
+      return "🗄️";
+
+    if(title === "AI")
+      return "🤖";
+
+    return "📊";
+  };
 
   return (
+
     <div className="score-card">
 
-      <h3>{title}</h3>
+      <h3>
+        {getIcon()} {title}
+      </h3>
 
-      <h2 className="score-number">
-  {score}
-</h2>
+      <div className="score-circle">
+        {score}
+      </div>
+
+      <div className="score-level">
+        {getLevel()}
+      </div>
 
     </div>
   );
-  const getColor = () => {
-
-  if(score >= 80)
-    return "#22c55e";
-
-  if(score >= 60)
-    return "#3b82f6";
-
-  if(score >= 40)
-    return "#f59e0b";
-
-  return "#ef4444";
-};
 }
 
 export default ScoreCard;

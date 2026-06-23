@@ -4,23 +4,28 @@ import "./styles/App.css";
 import ScoreCard from "./components/ScoreCard";
 import TechnologyBadge from "./components/TechnologyBadge";
 import LoadingSpinner from "./components/LoadingSpinner";
-import ProfileCard from "./components/ProfileCard";
 import SkillProgress from "./components/SkillProgress";
 import CandidateSummary from "./components/CandidateSummary";
 import { downloadReport } from "./services/pdfService";
-import ProfileInfoCard from "./components/ProfileInfoCard";
-import HiringCard from "./components/HiringCard";
 import { getReport, getProfile } from "./services/api";
-
+import DeveloperOverviewCard from "./components/DeveloperOverviewCard";
+import RadarSkillChart from "./components/RadarSkillChart";
+import AIInsights from "./components/AIInsights";
 
 function App() {
   const [username, setUsername] = useState("");
   const [report, setReport] = useState(null);
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
   const handleAnalyze = async () => {
-    if (!username.trim()) return;
+    if (!username.trim()) {
+  setError("Please enter a GitHub username");
+  return;
+}
+
+setError("");
 
     try {
       setLoading(true);
@@ -44,9 +49,15 @@ const data =
       });
       setReport(data);
     } catch (error) {
-      console.error(error);
-      alert("Error fetching report");
-    } finally {
+
+  console.error(error);
+
+  setReport(null);
+
+  setError(
+    "GitHub user not found. Please enter a valid username."
+  );
+} finally {
       setLoading(false);
     }
   };
@@ -54,22 +65,36 @@ const data =
   return (
     <div className="app">
       <div className="hero">
-        <h1 className="title">DevScout AI</h1>
-        <h2 className="hero-heading">
-          Analyze Any GitHub Developer
-          <br />
-          with AI-Powered Insights
-        </h2>
-        <p className="subtitle">
-          Technology Detection • Developer Scoring • AI Recommendations
-        </p>
-      </div>
+
+  <div className="hero-badge">
+    🚀 AI Powered Developer Intelligence
+  </div>
+
+  <h1 className="title">
+    GitHire AI
+  </h1>
+
+  <h2 className="hero-heading">
+    AI-Powered Hiring Intelligence
+  </h2>
+
+  <p className="subtitle">
+    Skill Assessment • Experience Detection • Hiring Recommendation
+  </p>
+
+</div>
 
       <SearchBar
         username={username}
         setUsername={setUsername}
         handleAnalyze={handleAnalyze}
       />
+
+      {error && (
+  <div className="error-message">
+    ❌ {error}
+  </div>
+)}
 
       {loading && <LoadingSpinner />}
 
@@ -78,18 +103,21 @@ const data =
         <h2 className="section-title">
   Developer Overview
 </h2>
-        <ProfileInfoCard
-      profile={profile}
-    />
 
-        
-          <ProfileCard username={username} overallScore={report.overallScore} />
-  
-          <div className="overall-section">
-            <ScoreCard title="Overall Score" score={report.overallScore} />
-          </div>
 
+<DeveloperOverviewCard
+  profile={profile}
+  username={username}
+  overallScore={report.overallScore}
+/>
           <div className="section-divider"></div>
+
+<RadarSkillChart
+  backend={report.backendScore}
+  frontend={report.frontendScore}
+  database={report.databaseScore}
+  ai={report.aiScore}
+/>
 
           <h2 className="section-title">
   Technical Assessment
@@ -137,17 +165,23 @@ const data =
   AI Recruiter Summary
 </h2>
 
-          <CandidateSummary analysis={report.aiAnalysis} />
+          
+<AIInsights analysis={report.aiAnalysis} />
 
-<div className="section-divider"></div>
-          <HiringCard />
+          <div className="report-section">
+  <h3>📄 Export Developer Report</h3>
 
-          <button
-            className="download-btn"
-            onClick={() => downloadReport(username, report)}
-          >
-            Download Report
-          </button>
+  <p>
+  Export a recruiter-ready PDF report with AI insights and developer scoring.
+</p>
+
+  <button
+    className="download-btn"
+    onClick={() => downloadReport(username, report)}
+  >
+    Download Report
+  </button>
+</div>
         </>
         
       )}

@@ -1,15 +1,20 @@
 function CandidateSummary({ analysis }) {
 
   return (
+
     <div className="candidate-summary">
 
-      <h2>
-        Candidate Summary
-      </h2>
+      <div className="summary-header">
 
-      <pre>
+        🧠 AI Recruiter Analysis
+
+      </div>
+
+      <div className="summary-content">
+
         {analysis}
-      </pre>
+
+      </div>
 
     </div>
   );
