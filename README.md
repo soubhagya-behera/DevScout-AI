@@ -207,9 +207,11 @@ http://localhost:8080
 
 Java Full Stack Developer | Spring Boot | React | AI Integration
 
-GitHub: https://github.com/soubhagya-behera
-LinkedIN: https://www.linkedin.com/in/soubhagyakumar-java
-Portfolio: https://soubhagya-portfolio-olive.vercel.app
+* GitHub: https://github.com/soubhagya-behera
+
+* LinkedIN: https://www.linkedin.com/in/soubhagyakumar-java
+
+* Portfolio: https://soubhagya-portfolio-olive.vercel.app
 
 ---
 
