@@ -91,6 +91,10 @@ Generate recruiter-ready PDF reports containing:
 
 ![Home Page](screenshots/home-page.png)
 
+### Candidate Dashboard
+
+![Candidate Dashboard](screenshots/candidate-dashboard.png)
+
 ### Skill Intelligence Radar
 
 ![Skill Dashboard](screenshots/skill-dashboard.png)
