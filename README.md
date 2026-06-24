@@ -87,21 +87,21 @@ Generate recruiter-ready PDF reports containing:
 
 ## 📸 Screenshots
 
-### Dashboard Overview
+### Home Page
 
-Analyze GitHub profiles and generate AI-powered insights.
+![Home Page](screenshots/home-page.png)
 
 ### Skill Intelligence Radar
 
-Visualize Backend, Frontend, Database, and AI capabilities.
+![Skill Dashboard](screenshots/skill-dashboard.png)
 
 ### Recruiter Summary
 
-Receive professional hiring recommendations and technical evaluations.
+![AI Summary](screenshots/ai-analysis.png)
 
 ### PDF Export
 
-Download recruiter-ready reports instantly.
+![Pdf Report](screenshots/export-pdf.png)
 
 ---
 
