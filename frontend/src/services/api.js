@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const BASE_URL =
-  "http://localhost:8080/api/github";
+  "https://devscout-ai-backend.onrender.com/api/github";
 
 export const getReport =
   async (username) => {
@@ -14,16 +14,15 @@ export const getReport =
     return response.data;
 };
 
-export const getProfile = async (
-  username
-) => {
+export const getProfile =
+  async (username) => {
 
-  const response =
-    await axios.get(
-      `http://localhost:8080/api/github/profile/${username}`
-    );
+    const response =
+      await axios.get(
+        `${BASE_URL}/profile/${username}`
+      );
 
-  return response.data;
+    return response.data;
 };
 
 export const getRepoAnalysis =
@@ -31,9 +30,8 @@ export const getRepoAnalysis =
 
     const response =
       await axios.get(
-        `http://localhost:8080/api/github/repos/${username}`
+        `${BASE_URL}/repos/${username}`
       );
 
     return response.data;
 };
-
