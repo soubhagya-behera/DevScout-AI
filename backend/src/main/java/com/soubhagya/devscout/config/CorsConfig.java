@@ -14,15 +14,15 @@ public class CorsConfig {
         return new WebMvcConfigurer() {
 
             @Override
-            public void addCorsMappings(
-                    CorsRegistry registry
-            ) {
+            public void addCorsMappings(CorsRegistry registry) {
 
                 registry.addMapping("/**")
                         .allowedOrigins(
-                                "http://localhost:5173"
+                                "http://localhost:5173",
+                                "https://dev-scout-ai.vercel.app"
                         )
-                        .allowedMethods("*");
+                        .allowedMethods("*")
+                        .allowedHeaders("*");
             }
         };
     }
