@@ -20,28 +20,42 @@ import com.soubhagya.devscout.dto.GitHubProfileDTO;
 
 import java.util.ArrayList;
 
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+
 @Service
 public class GitHubService {
+
+        @Value("${github.token}")
+private String githubToken;
 
     private final RestTemplate restTemplate = new RestTemplate();
 
     public List<GitHubRepoDTO> getRepositories(String username) {
 
-        String url =
-                "https://api.github.com/users/"
-                        + username
-                        + "/repos";
+    String url =
+            "https://api.github.com/users/"
+                    + username
+                    + "/repos";
 
-        ResponseEntity<List<GitHubRepoDTO>> response =
-                restTemplate.exchange(
-                        url,
-                        HttpMethod.GET,
-                        null,
-                        new ParameterizedTypeReference<List<GitHubRepoDTO>>() {}
-                );
+    HttpHeaders headers = new HttpHeaders();
 
-        return response.getBody();
-    }
+    headers.setBearerAuth(githubToken);
+
+    HttpEntity<String> entity =
+            new HttpEntity<>(headers);
+
+    ResponseEntity<List<GitHubRepoDTO>> response =
+            restTemplate.exchange(
+                    url,
+                    HttpMethod.GET,
+                    entity,
+                    new ParameterizedTypeReference<List<GitHubRepoDTO>>() {}
+            );
+
+    return response.getBody();
+}
 
     public ProfileAnalysisDTO analyzeProfile(String username) {
 
