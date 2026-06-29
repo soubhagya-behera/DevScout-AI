@@ -141,9 +141,9 @@ Analyze this GitHub developer profile.
 
 %s
 
-Return EXACTLY in this format:
+Return ONLY in the exact format below.
 
-LEVEL: <one line>
+LEVEL: <Only one line>
 
 TOP_STRENGTHS:
 - point 1
@@ -157,7 +157,7 @@ IMPROVEMENTS:
 - point 3
 
 HIRING_RECOMMENDATION:
-<one short line>
+<exactly only ONE short line>
 
 Keep response under 80 words.
 No markdown.
