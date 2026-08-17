@@ -10,8 +10,7 @@ import java.util.Map;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.soubhagya.devscout.dto.GitHubRepoDTO;
-import com.soubhagya.devscout.dto.RepositoryAnalysisDTO;
+import com.soubhagya.devscout.dto.DeveloperAnalysisData;
 
 @Service
 public class GeminiService {
@@ -114,24 +113,22 @@ public class GeminiService {
 
 
 
-public RepositoryAnalysisDTO analyzeRepository(
-        GitHubRepoDTO repo
+public String generateCandidateReport(
+        String profileData
 ) {
 
-    String result =
-            analyzeProject(
-                    repo.getName(),
-                    repo.getDescription()
-            );
+    DeveloperAnalysisData data =
+            new DeveloperAnalysisData();
 
-    return new RepositoryAnalysisDTO(
-            repo.getName(),
-            result
+    data.setRepositorySummaries(
+            List.of(profileData)
     );
+
+    return generateCandidateReport(data);
 }
 
 public String generateCandidateReport(
-        String profileData
+        DeveloperAnalysisData data
 ) {
 
     try {
@@ -139,6 +136,23 @@ public String generateCandidateReport(
         String prompt = """
 Analyze this GitHub developer profile.
 
+Username: %s
+Total Repositories: %d
+
+Languages:
+%s
+
+Technologies:
+%s
+
+Scores (out of 100):
+Backend: %d
+Frontend: %d
+Database: %d
+AI: %d
+Overall: %d
+
+Repositories:
 %s
 
 Return ONLY in the exact format below.
@@ -163,7 +177,18 @@ Keep response under 80 words.
 No markdown.
 No explanations.
 """
-.formatted(profileData);
+.formatted(
+        data.getUsername(),
+        data.getTotalRepositories(),
+        formatMap(data.getLanguages()),
+        formatMap(data.getTechnologies()),
+        data.getBackendScore(),
+        data.getFrontendScore(),
+        data.getDatabaseScore(),
+        data.getAiScore(),
+        data.getOverallScore(),
+        formatList(data.getRepositorySummaries())
+);
 
         return analyzeProject(
                 "Developer Profile",
@@ -193,5 +218,35 @@ No explanations.
                 Suitable for Java Backend Developer and Full Stack Developer roles.
                 """;
     }
+}
+
+private String formatMap(Map<String,Integer> values) {
+
+    if (values == null || values.isEmpty()) {
+        return "None";
+    }
+
+    StringBuilder builder =
+            new StringBuilder();
+
+    for (Map.Entry<String,Integer> entry : values.entrySet()) {
+
+        builder.append("- ")
+                .append(entry.getKey())
+                .append(": ")
+                .append(entry.getValue())
+                .append("\n");
+    }
+
+    return builder.toString().trim();
+}
+
+private String formatList(List<String> values) {
+
+    if (values == null || values.isEmpty()) {
+        return "None";
+    }
+
+    return String.join("\n", values);
 }
 }

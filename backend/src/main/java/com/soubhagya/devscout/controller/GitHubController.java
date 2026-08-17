@@ -10,7 +10,6 @@ import com.soubhagya.devscout.service.GitHubService;
 import org.springframework.web.bind.annotation.*;
 
 import com.soubhagya.devscout.dto.RepositoryAnalysisDTO;
-import java.util.ArrayList;
 
 import java.util.List;
 
@@ -85,29 +84,10 @@ public String analyzeRepo() {
 public List<RepositoryAnalysisDTO> fullAnalysis(
         @PathVariable String username
 ) {
-
-    List<GitHubRepoDTO> repos =
-            gitHubService.getRepositories(
+    return gitHubService
+            .analyzeRepositories(
                     username
             );
-
-    List<RepositoryAnalysisDTO> result =
-            new ArrayList<>();
-
-    for (GitHubRepoDTO repo : repos) {
-
-        if (repo.getDescription() != null) {
-
-            result.add(
-                    geminiService
-                            .analyzeRepository(
-                                    repo
-                            )
-            );
-        }
-    }
-
-    return result;
 }
 
 @GetMapping("/candidate-report/{username}")
@@ -144,14 +124,9 @@ public String candidateReport(
 public FinalReportDTO finalReport(
         @PathVariable String username
 ) {
-
-    String analysis =
-            candidateReport(username);
-
     return gitHubService
             .generateFinalReport(
-                    username,
-                    analysis
+                    username
             );
 }
 
