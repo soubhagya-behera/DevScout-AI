@@ -1,52 +1,37 @@
-function ScoreCard({ title, score }) {
+import { useEffect, useState } from "react";
+import { useCountUp } from "../hooks/useCountUp";
 
-  const getLevel = () => {
+function ScoreCard({ title, score, delay = 0 }) {
+  const value = useCountUp(score, { duration: 900, delay });
+  const [mounted, setMounted] = useState(false);
 
-    if(score >= 80)
-      return "Expert";
+  useEffect(() => {
+    const timer = setTimeout(() => setMounted(true), delay);
+    return () => clearTimeout(timer);
+  }, [delay]);
 
-    if(score >= 60)
-      return "Advanced";
-
-    if(score >= 40)
-      return "Intermediate";
-
-    return "Beginner";
-  };
-
-  const getIcon = () => {
-
-    if(title === "Backend")
-      return "⚙️";
-
-    if(title === "Frontend")
-      return "🎨";
-
-    if(title === "Database")
-      return "🗄️";
-
-    if(title === "AI")
-      return "🤖";
-
-    return "📊";
-  };
+  const level =
+    score >= 80
+      ? "Expert"
+      : score >= 60
+        ? "Advanced"
+        : score >= 40
+          ? "Intermediate"
+          : "Beginner";
 
   return (
-
-    <div className="score-card">
-
-      <h3>
-        {getIcon()} {title}
-      </h3>
-
-      <div className="score-circle">
-        {score}
+    <div className="score-card" style={{ animationDelay: `${delay}ms` }}>
+      <div className="score-card-top">
+        <span className="score-card-title">{title}</span>
+        <span className="score-card-value">{value}</span>
       </div>
-
-      <div className="score-level">
-        {getLevel()}
+      <div className="progress-track">
+        <div
+          className="progress-fill"
+          style={{ width: mounted ? `${score}%` : "0%" }}
+        />
       </div>
-
+      <div className="score-card-level">{level}</div>
     </div>
   );
 }

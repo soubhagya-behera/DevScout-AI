@@ -156,23 +156,22 @@ No explanations.
     } catch (Exception e) {
 
         return """
-                Skill Level:
-                Intermediate Java Full Stack Developer
+                LEVEL: Intermediate Java Full Stack Developer
 
-                Strengths:
+                TOP_STRENGTHS:
                 - Spring Boot
                 - React
                 - MySQL
                 - REST APIs
                 - GitHub API Integration
 
-                Areas for Improvement:
+                IMPROVEMENTS:
                 - Docker
                 - AWS
                 - CI/CD
                 - Microservices
 
-                Hiring Recommendation:
+                HIRING_RECOMMENDATION:
                 Suitable for Java Backend Developer and Full Stack Developer roles.
                 """;
     }

@@ -25,6 +25,17 @@ export const getProfile =
     return response.data;
 };
 
+export const getAnalyze =
+  async (username) => {
+
+    const response =
+      await axios.get(
+        `${BASE_URL}/analyze/${username}`
+      );
+
+    return response.data;
+};
+
 export const getRepoAnalysis =
   async (username) => {
 

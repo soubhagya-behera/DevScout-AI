@@ -1,14 +1,9 @@
-function TechnologyBadge({
-  tech,
-  count
-}) {
+function TechnologyBadge({ tech, count }) {
   return (
-    <div className="tech-badge">
-      <span>{tech}</span>
-      <span className="tech-count">
-        {count}
-      </span>
-    </div>
+    <span className="tech-badge">
+      <span className="tech-name">{tech}</span>
+      {count != null && <span className="tech-count">{count}</span>}
+    </span>
   );
 }
 

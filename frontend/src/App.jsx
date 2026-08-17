@@ -1,190 +1,168 @@
-import { useState } from "react";
-import SearchBar from "./components/SearchBar";
-import "./styles/App.css";
-import ScoreCard from "./components/ScoreCard";
-import TechnologyBadge from "./components/TechnologyBadge";
-import LoadingSpinner from "./components/LoadingSpinner";
-import SkillProgress from "./components/SkillProgress";
-import CandidateSummary from "./components/CandidateSummary";
+import { useRef, useState } from "react";
+import Navbar from "./components/Navbar";
+import Hero from "./components/Hero";
+import ProductPreview from "./components/ProductPreview";
+import LoadingSequence from "./components/LoadingSequence";
+import Dashboard from "./components/Dashboard";
 import { downloadReport } from "./services/pdfService";
-import { getReport, getProfile } from "./services/api";
-import DeveloperOverviewCard from "./components/DeveloperOverviewCard";
-import RadarSkillChart from "./components/RadarSkillChart";
-import AIInsights from "./components/AIInsights";
+import {
+  getReport,
+  getProfile,
+  getRepoAnalysis,
+  getAnalyze
+} from "./services/api";
+import "./styles/App.css";
+
+const MIN_STEP_MS = 750;
 
 function App() {
   const [username, setUsername] = useState("");
   const [report, setReport] = useState(null);
   const [profile, setProfile] = useState(null);
+  const [languages, setLanguages] = useState(null);
+  const [repoAnalysis, setRepoAnalysis] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [phase, setPhase] = useState(0);
+  const requestIdRef = useRef(0);
 
-  const handleAnalyze = async () => {
+  const scrollToDashboard = () => {
+    window.setTimeout(() => {
+      const target = document.getElementById("dashboard");
+      if (target) {
+        target.scrollIntoView({ behavior: "smooth", block: "start" });
+      } else {
+        window.scrollTo({ top: 500, behavior: "smooth" });
+      }
+    }, 0);
+  };
+
+  const handleAnalyze = () => {
     if (!username.trim()) {
-  setError("Please enter a GitHub username");
-  return;
-}
-
-setError("");
-
-    try {
-      setLoading(true);
-      const profileData =
-  await getProfile(
-    username
-  );
-
-setProfile(
-  profileData
-);
-
-
-const data =
-  await getReport(
-    username
-  );
-      window.scrollTo({
-        top: 500,
-        behavior: "smooth",
-      });
-      setReport(data);
-    } catch (error) {
-
-  console.error(error);
-
-  setReport(null);
-
-  setError(
-    "GitHub user not found. Please enter a valid username."
-  );
-} finally {
-      setLoading(false);
+      setError("Please enter a GitHub username");
+      return;
     }
+
+    const requestId = requestIdRef.current + 1;
+    requestIdRef.current = requestId;
+
+    setError("");
+    setLoading(true);
+    setPhase(0);
+    setReport(null);
+    setProfile(null);
+    setLanguages(null);
+    setRepoAnalysis(null);
+
+    const t0 = Date.now();
+    let settled = false;
+
+    const isCurrent = () => requestIdRef.current === requestId;
+
+    const finishLoading = () => {
+      if (settled || !isCurrent()) return;
+      settled = true;
+      setLoading(false);
+    };
+
+    const schedulePhase = (n) => {
+      const wait = Math.max(0, n * MIN_STEP_MS - (Date.now() - t0));
+      window.setTimeout(() => {
+        if (isCurrent()) {
+          setPhase((current) => Math.max(current, n));
+        }
+      }, wait);
+    };
+
+    getProfile(username)
+      .then((profileData) => {
+        if (!isCurrent()) return;
+        setProfile(profileData);
+        schedulePhase(1);
+      })
+      .catch(() => {});
+
+    getReport(username)
+      .then((reportData) => {
+        if (!isCurrent()) return;
+        setReport(reportData);
+        schedulePhase(3);
+        window.setTimeout(() => {
+          finishLoading();
+          scrollToDashboard();
+        }, 450);
+      })
+      .catch((err) => {
+        if (!isCurrent()) return;
+        console.error(err);
+        setError("GitHub user not found. Please enter a valid username.");
+        finishLoading();
+      });
+
+    getRepoAnalysis(username)
+      .then((data) => {
+        if (!isCurrent()) return;
+        if (data) setRepoAnalysis(data);
+        schedulePhase(2);
+      })
+      .catch(() => schedulePhase(2));
+
+    getAnalyze(username)
+      .then((data) => {
+        if (!isCurrent()) return;
+        if (data && data.languages) setLanguages(data.languages);
+      })
+      .catch(() => {});
+  };
+
+  const handleNewAnalysis = () => {
+    requestIdRef.current += 1;
+    setReport(null);
+    setProfile(null);
+    setLanguages(null);
+    setRepoAnalysis(null);
+    setError("");
+    setPhase(0);
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   return (
     <div className="app">
-      <div className="hero">
+      <Navbar />
 
-  <div className="hero-badge">
-    🚀 AI Powered Developer Intelligence
-  </div>
-
-  <h1 className="title">
-    DevScout AI
-  </h1>
-
-  <h2 className="hero-heading">
-    AI-Powered Hiring Intelligence
-  </h2>
-
-  <p className="subtitle">
-    Skill Assessment • Experience Detection • Hiring Recommendation
-  </p>
-
-</div>
-
-      <SearchBar
-        username={username}
-        setUsername={setUsername}
-        handleAnalyze={handleAnalyze}
-      />
-
-      {error && (
-  <div className="error-message">
-    ❌ {error}
-  </div>
-)}
-
-      {loading && <LoadingSpinner />}
-
-      {report && (
-        <>
-        <h2 className="section-title">
-  Developer Overview
-</h2>
-
-
-<DeveloperOverviewCard
-  profile={profile}
-  username={username}
-  overallScore={report.overallScore}
-/>
-          <div className="section-divider"></div>
-
-<RadarSkillChart
-  backend={report.backendScore}
-  frontend={report.frontendScore}
-  database={report.databaseScore}
-  ai={report.aiScore}
-/>
-
-          <h2 className="section-title">
-  Technical Assessment
-</h2>
-
-          <div className="scores-grid">
-            <ScoreCard title="Backend" score={report.backendScore} />
-            <ScoreCard title="Frontend" score={report.frontendScore} />
-            <ScoreCard title="Database" score={report.databaseScore} />
-            <ScoreCard title="AI" score={report.aiScore} />
-          </div>
-
-          <div className="skills-section">
-
-            <h2>Skill Breakdown</h2>
-            <SkillProgress title="Backend" score={report.backendScore} />
-            <SkillProgress title="Frontend" score={report.frontendScore} />
-            <SkillProgress title="Database" score={report.databaseScore} />
-            <SkillProgress title="AI" score={report.aiScore} />
-          </div>
-
-          <div className="section-divider"></div>
-
-          <h2 className="section-title">
-  Technology Stack
-</h2>
-
-      <div className="technologies-section">
-  <div className="tech-grid">
-    {Object.entries(report.technologies).map(
-      ([tech, count]) => (
-        <TechnologyBadge
-          key={tech}
-          tech={tech}
-          count={count}
+      <main className="app-main">
+        <Hero
+          username={username}
+          setUsername={setUsername}
+          handleAnalyze={handleAnalyze}
+          error={error}
+          loading={loading}
         />
-      )
-    )}
-  </div>
-</div>    
 
-<div className="section-divider"></div>
+        {loading && (
+          <LoadingSequence phase={phase} username={username} />
+        )}
 
-          <h2 className="section-title">
-  AI Recruiter Summary
-</h2>
+        {!loading && !report && <ProductPreview />}
 
-          
-<AIInsights analysis={report.aiAnalysis} />
+        {!loading && report && profile && (
+          <Dashboard
+            profile={profile}
+            report={report}
+            username={username}
+            languages={languages}
+            repoAnalysis={repoAnalysis}
+            onDownload={() => downloadReport(username, report)}
+            onNewAnalysis={handleNewAnalysis}
+          />
+        )}
+      </main>
 
-          <div className="report-section">
-  <h3>📄 Export Developer Report</h3>
-
-  <p>
-  Export a recruiter-ready PDF report with AI insights and developer scoring.
-</p>
-
-  <button
-    className="download-btn"
-    onClick={() => downloadReport(username, report)}
-  >
-    Download Report
-  </button>
-</div>
-        </>
-        
-      )}
+      <footer className="app-footer">
+        <span className="app-footer-brand">DevScout</span>
+        <span className="app-footer-divider" aria-hidden="true"></span>
+        <span>Developer intelligence from GitHub activity.</span>
+      </footer>
     </div>
   );
 }
