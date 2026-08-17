@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -464,17 +465,40 @@ public class GitHubService {
             List<GitHubRepoDTO> repos
     ) {
 
+        List<GitHubRepoDTO> topRepos =
+                repos.stream()
+                        .sorted(
+                                Comparator.comparingInt(
+                                        GitHubRepoDTO::getStars
+                                ).reversed()
+                        )
+                        .limit(20)
+                        .toList();
+
         List<String> summaries =
                 new ArrayList<>();
 
-        for (GitHubRepoDTO repo : repos) {
+        for (GitHubRepoDTO repo : topRepos) {
+
+            String description =
+                    repo.getDescription();
+
+            if (description == null
+                    || description.isBlank()) {
+
+                description = "No description";
+
+            } else if (description.length() > 80) {
+
+                description =
+                        description.substring(0, 80)
+                                + "...";
+            }
 
             summaries.add(
                     repo.getName()
                             + " - "
-                            + (repo.getDescription() == null
-                            ? "No description"
-                            : repo.getDescription())
+                            + description
             );
         }
 
