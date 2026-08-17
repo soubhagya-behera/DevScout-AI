@@ -1,0 +1,134 @@
+/* ---------- Panels ---------- */
+
+.section-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+}
+
+.panel-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border);
+}
+
+.panel-title {
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.panel-note {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+/* ---------- Repositories table ---------- */
+
+.repo-table-wrap {
+  overflow-x: auto;
+}
+
+.repo-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.repo-table th {
+  text-align: left;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+  padding: 10px 20px;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface-deep);
+}
+
+.repo-table td {
+  padding: 12px 20px;
+  border-bottom: 1px solid var(--border);
+  vertical-align: top;
+}
+
+.repo-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.repo-table tbody tr {
+  transition: background-color 0.12s ease;
+}
+
+.repo-table tbody tr:hover {
+  background: var(--surface-hover);
+}
+
+.repo-name {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.repo-techs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.repo-none {
+  color: var(--text-muted);
+  font-size: 12px;
+}
+
+/* ---------- Empty state ---------- */
+
+.empty-state {
+  padding: 40px 20px;
+  text-align: center;
+  color: var(--text-secondary);
+  font-size: 14px;
+}
+
+.empty-state-sub {
+  margin-top: 6px;
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+/* ---------- Technologies list ---------- */
+
+.tech-list {
+  padding: 12px 20px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.tech-row {
+  animation: fadeUp 0.4s ease-out both;
+}
+
+.tech-row-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+.tech-row-count {
+  font-size: 12px;
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+}

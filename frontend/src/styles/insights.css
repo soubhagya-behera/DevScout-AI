@@ -1,0 +1,97 @@
+/* ---------- AI insights ---------- */
+
+.insights {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.insights-level {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 20px;
+}
+
+.insights-label {
+  font-size: 12px;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.insights-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.insight-list-panel {
+  padding: 20px;
+}
+
+.insight-list-title {
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 14px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border);
+}
+
+.insight-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.insight-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--text-secondary);
+}
+
+.insight-item.success .insight-icon {
+  color: var(--green);
+}
+
+.insight-item.warning .insight-icon {
+  color: var(--amber);
+}
+
+.insight-icon {
+  margin-top: 2px;
+  flex-shrink: 0;
+}
+
+.insight-empty {
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.hiring-callout {
+  padding: 18px 20px;
+  border: 1px solid rgba(34, 197, 94, 0.25);
+  background: rgba(34, 197, 94, 0.05);
+}
+
+.hiring-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--green);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.hiring-text {
+  margin-top: 10px;
+  font-size: 14px;
+  line-height: 1.6;
+}
