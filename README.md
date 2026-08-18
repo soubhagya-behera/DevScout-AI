@@ -12,9 +12,9 @@ DevScout AI combines **GitHub REST API**, **Spring Boot**, and **Google Gemini A
 
 ## 🌐 Live Demo
 
-🚀 **Live Application:** [YOUR_VERCEL_URL](https://dev-scout-ai.vercel.app/)
+🚀 **Live Application:** https://dev-scout-ai.vercel.app
 
-⚙️ **Backend API:** [YOUR_RENDER_URL](https://devscout-ai-backend.onrender.com/api/github)
+⚙️ **Backend API:** https://devscout-ai-backend.onrender.com/api/github
 
 💻 **Source Code:** https://github.com/soubhagya-behera/DevScout-AI
 
