@@ -162,6 +162,8 @@ function App() {
         <span className="app-footer-brand">DevScout</span>
         <span className="app-footer-divider" aria-hidden="true"></span>
         <span>Developer intelligence from GitHub activity.</span>
+        <span className="app-footer-divider" aria-hidden="true"></span>
+        <span className="app-footer-credit">Built by Soubhagya Kumar Behera</span>
       </footer>
     </div>
   );
