@@ -1,111 +1,156 @@
-# 🚀 DevScout AI - GitHub Developer Intelligence Platform
+# 🚀 DevScout AI
 
-DevScout AI is an AI-powered GitHub profile analysis platform that evaluates developers like a senior technical recruiter. The application analyzes repositories, technologies, coding patterns, and project complexity to generate recruiter-ready insights, technical assessments, skill scores, and hiring recommendations.
+### AI-Powered Developer Intelligence Platform
 
-## ✨ Features
+DevScout AI is a developer intelligence platform that transforms public GitHub repository data into structured technical insights, developer skill scores, and recruiter-ready candidate assessments.
 
-### 🔍 GitHub Profile Analysis
+Instead of manually reviewing multiple repositories, recruiters can enter a GitHub username and receive a consolidated developer report containing technical skills, technology detection, engineering scores, AI-generated insights, and hiring recommendations.
 
-* Analyze any public GitHub profile
-* Fetch repositories, contributions, and developer activity
-* Generate comprehensive developer insights
+DevScout AI combines **GitHub REST API**, **Spring Boot**, and **Google Gemini AI** to create a streamlined developer evaluation workflow.
 
-### 🤖 AI-Powered Recruiter Evaluation
+---
 
-* Technical assessment using Gemini AI
-* Candidate experience level detection
-* Strengths and growth area identification
-* Recruiter-style hiring recommendations
+## 🌐 Live Demo
 
-### 📊 Skill Intelligence Dashboard
+🚀 **Live Application:** [YOUR_VERCEL_URL](https://dev-scout-ai.vercel.app/)
 
-* Backend Skill Analysis
-* Frontend Skill Analysis
-* Database Expertise Evaluation
-* AI & Machine Learning Capability Assessment
-* Interactive Radar Chart Visualization
+⚙️ **Backend API:** [YOUR_RENDER_URL](https://devscout-ai-backend.onrender.com/api/github)
 
-### 🏆 Developer Scoring System
+💻 **Source Code:** https://github.com/soubhagya-behera/DevScout-AI
 
-* Overall Developer Score
-* Backend Score
-* Frontend Score
-* Database Score
-* AI Score
+---
 
-### 🛠 Technology Detection
+## 🎯 Why DevScout AI?
 
-Automatically detects technologies from repositories including:
+Reviewing a developer's GitHub profile manually can require checking multiple repositories, technologies, project descriptions, and technical signals.
 
-* Java
-* Spring Boot
-* React
-* MySQL
-* JWT
-* Gemini API
-* Razorpay
-* JDBC
-* And many more
+DevScout AI simplifies this process:
 
-### 📄 Professional PDF Reports
+```text
+GitHub Profile
+      ↓
+Repository Data
+      ↓
+Technology Detection
+      ↓
+Developer Skill Scoring
+      ↓
+AI-Powered Assessment
+      ↓
+Recruiter Insights
+      ↓
+Professional PDF Report
+```
+---
 
-Generate recruiter-ready PDF reports containing:
+## ✨ Key Features
 
-* Candidate Summary
-* Technical Assessment
-* Technology Stack Analysis
-* Skill Scores
-* Hiring Recommendations
+- 🔍 **GitHub Profile Analysis** — Analyze public GitHub profiles and repository data.
+
+- 🤖 **AI Recruiter Evaluation** — Gemini-powered experience, strengths, improvements, and hiring insights.
+
+- 📊 **Developer Skill Scoring** — Backend, Frontend, Database, AI, and overall scores.
+
+- 🛠️ **Technology Detection** — Identify technologies and frameworks from repository metadata.
+
+- 📈 **Skill Intelligence Dashboard** — Visualize technical strengths with interactive charts.
+
+- 📄 **PDF Reports** — Generate professional recruiter-ready developer reports.
+
+- ⚡ **API Optimization** — Minimized GitHub/Gemini requests with local analysis, caching, retries, and timeouts.
+
+- 📱 **Responsive SaaS UI** — Modern developer-focused interface optimized for desktop and mobile.
 
 ---
 
 ## 🏗 Tech Stack
 
 ### Frontend
-
-* React.js
-* JavaScript (ES6+)
-* CSS3
-* Recharts
-* Axios
+- React.js
+- JavaScript (ES6+)
+- CSS3
+- Recharts
+- Axios
 
 ### Backend
+- Java 17
+- Spring Boot
+- Spring Web
+- Maven
 
-* Java
-* Spring Boot
-* Spring Web
-* GitHub REST API
-* Gemini AI API
+### APIs & Services
 
-### Tools & APIs
+- GitHub REST API
+- Google Gemini API
+- jsPDF
 
-* GitHub API
-* Google Gemini API
-* jsPDF
+### Deployment & Tools
+
+- Docker
+- Git
+- GitHub
+- Maven
+- Vercel
+- Render
+
+---
+
+## 🔄 Architecture
+
+```text
+React Frontend
+      ↓
+Spring Boot REST API
+      ↓
+GitHub REST API
+      ↓
+Local Developer Analysis
+      ↓
+Gemini AI
+      ↓
+Final Developer Report
+      ↓
+PDF Export
+```
+---
+
+## 🔄 How It Works
+
+1. Enter a public GitHub username.
+2. DevScout fetches the developer's repository data.
+3. Repository metadata is analyzed locally to detect languages and technologies.
+4. Developer skill scores are calculated across Backend, Frontend, Database, and AI.
+5. The aggregated profile is sent to Gemini for recruiter-style evaluation.
+6. DevScout generates structured hiring insights and a professional PDF report.
+
+### ⚡ Optimized API Usage
+
+DevScout is designed to minimize unnecessary API requests:
+
+- GitHub data is fetched once per uncached analysis.
+- A single Gemini request generates the complete AI assessment.
+- Local calculations handle technology detection and scoring.
+- Cached results avoid repeated GitHub and Gemini requests.
+- Retry and timeout handling improves API reliability.
 
 ---
 
 ## 📸 Screenshots
 
 ### Home Page
+![DevScout AI Home](screenshots/home-page.png)
 
-![Home Page](screenshots/home-page.png)
+### Developer Dashboard
+![Developer Dashboard](screenshots/candidate-dashboard.png)
 
-### Candidate Dashboard
+### Skill Intelligence
+![Skill Intelligence](screenshots/candidate-skill.png)
 
-![Candidate Dashboard](screenshots/candidate-dashboard.png)
+### AI Recruiter Insights
+![AI Recruiter Insights](screenshots/ai-insight.png)
 
-### Skill Intelligence Radar
-
-![Skill Dashboard](screenshots/skill-dashboard.png)
-
-### Recruiter Summary
-
-![AI Summary](screenshots/ai-analysis.png)
-
-### PDF Export
-
-![Pdf Report](screenshots/export-pdf.png)
+### PDF Report
+![PDF Report](screenshots/pdf-export.png)
 
 ---
 
@@ -113,91 +158,46 @@ Generate recruiter-ready PDF reports containing:
 
 ### Prerequisites
 
-* Java 17+
-* Node.js 18+
-* Maven
-* GitHub API Access
-* Gemini API Key
+- Java 17+
+- Node.js 18+
+- Maven
+- GitHub API Token
+- Gemini API Key
 
-### Backend Setup
-
-```bash
-git clone https://github.com/yourusername/devscout-ai.git
-
-cd backend
-
-mvn clean install
-
-mvn spring-boot:run
-```
-
-### Frontend Setup
+### Clone the Repository
 
 ```bash
-cd frontend
-
-npm install
-
-npm run dev
+git clone https://github.com/soubhagya-behera/DevScout-AI.git
+cd DevScout-AI
 ```
-
-Frontend:
-
-```bash
-http://localhost:5173
-```
-
-Backend:
-
-```bash
-http://localhost:8080
-```
-
----
-
-## 📈 Workflow
-
-1. Enter a GitHub username
-2. Fetch repositories and profile information
-3. Analyze technology stack
-4. Generate AI-powered recruiter insights
-5. Calculate skill scores
-6. Produce hiring recommendation
-7. Export professional PDF report
-
 ---
 
 ## 🎯 Use Cases
 
-### For Recruiters
+### Recruiters
+- Quickly evaluate public GitHub profiles.
+- Identify technical strengths and technologies.
+- Generate structured candidate insights.
 
-* Quick candidate evaluation
-* Technical skill assessment
-* Hiring recommendation support
+### Developers
+- Understand their technical profile.
+- Identify strengths and improvement areas.
+- Generate a professional developer report.
 
-### For Developers
-
-* Portfolio evaluation
-* Skill gap identification
-* Resume and profile improvement
-
-### For Hiring Managers
-
-* Technical screening
-* Candidate comparison
-* Faster recruitment decisions
+### Hiring Managers
+- Perform an initial technical screening.
+- Get a structured overview before deeper evaluation.
 
 ---
 
 ## 🔮 Future Enhancements
 
-* GitHub Contribution Analysis
-* Repository Quality Scoring
-* ATS Compatibility Check
-* Coding Pattern Detection
-* Cloud Deployment Insights
-* Team Fit Recommendations
-* Multi-Candidate Comparison
+- GitHub contribution and activity analysis
+- Repository quality scoring
+- Commit and pull request analysis
+- Multi-candidate comparison
+- ATS compatibility analysis
+- Advanced code-level analysis
 
 ---
 
@@ -207,12 +207,10 @@ http://localhost:8080
 
 Java Full Stack Developer | Spring Boot | React | AI Integration
 
-* GitHub: https://github.com/soubhagya-behera
-
-* LinkedIN: https://www.linkedin.com/in/soubhagyakumar-java
-
-* Portfolio: https://soubhagya-portfolio-olive.vercel.app
+- GitHub: https://github.com/soubhagya-behera
+- LinkedIn: https://www.linkedin.com/in/soubhagyakumar-java
+- Portfolio: https://soubhagya-portfolio-olive.vercel.app
 
 ---
 
-⭐ If you found this project useful, consider giving it a star.
+⭐ If you found DevScout AI useful, consider giving the project a star.
