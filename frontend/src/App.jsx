@@ -126,8 +126,10 @@ function App() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
+  const hasDashboard = !loading && !!report && !!profile;
+
   return (
-    <div className="app">
+    <div className={`app ${hasDashboard ? "has-dashboard" : ""}`}>
       <Navbar />
 
       <main className="app-main">

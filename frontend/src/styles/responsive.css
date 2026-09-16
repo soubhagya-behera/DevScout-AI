@@ -72,6 +72,22 @@
     padding: 64px 16px 40px;
   }
 
+  .app.has-dashboard .hero {
+    padding: 32px 16px 24px;
+  }
+
+  .app.has-dashboard .dashboard {
+    margin-top: 24px;
+  }
+
+  .app.has-dashboard .dashboard-inner {
+    padding-bottom: 24px;
+  }
+
+  .app.has-dashboard .app-footer {
+    margin-top: 24px;
+  }
+
   .search-form {
     flex-direction: column;
     gap: 12px;
@@ -79,20 +95,168 @@
 
   .search-input-wrap {
     width: 100%;
-    height: 48px;
+    height: 52px;
+    min-height: 52px;
     padding: 0 16px;
+    box-sizing: border-box;
   }
 
   .search-prefix {
     font-size: 14px;
+    line-height: 1;
   }
 
   .search-input-wrap input {
     font-size: 16px;
+    height: 100%;
+    line-height: 1.5;
+    padding-block: 0;
+    padding-inline: 10px;
+    box-sizing: border-box;
   }
 
   .analyze-btn {
     width: 100%;
+  }
+
+  html,
+  body {
+    overflow-x: hidden;
+    max-width: 100%;
+  }
+
+  .app,
+  .app-main {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    overflow-x: hidden;
+  }
+
+  /* Dashboard mobile centering - ensure 16px gutters and centered content */
+  .dashboard {
+    width: 100%;
+    max-width: 100%;
+    padding-left: 16px;
+    padding-right: 16px;
+    box-sizing: border-box;
+    overflow-x: hidden;
+  }
+
+  .dashboard-inner {
+    width: 100%;
+    max-width: 100%;
+    margin: 0 auto;
+    padding: 24px 0 48px;
+    box-sizing: border-box;
+  }
+
+  .dashboard-body {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    gap: 16px;
+  }
+
+  .dashboard-content {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+  }
+
+  .section-stack {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+
+  .panel {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .overview-panel {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    overflow: hidden;
+  }
+
+  .overview-main {
+    padding: 16px;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+
+  .skills-panel,
+  .languages-panel {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    overflow: hidden;
+  }
+
+  .skills-layout {
+    padding: 16px;
+    gap: 16px;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    min-width: 0;
+  }
+
+  .skills-grid {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    min-width: 0;
+  }
+
+  .skills-radar {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .radar-card {
+    width: 100%;
+    max-width: 100%;
+    margin: 0 auto;
+    box-sizing: border-box;
+    overflow: hidden;
+  }
+
+  .languages-list {
+    padding: 16px;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+
+  .sidebar {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    margin: 0;
+    padding-bottom: 2px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+
+  .sidebar::-webkit-scrollbar {
+    display: none;
   }
 
   .preview-stats {
@@ -133,17 +297,49 @@
     flex-direction: column;
     align-items: flex-start;
     gap: 4px;
+    padding: 16px;
+    box-sizing: border-box;
   }
 
   .repo-table th,
   .repo-table td {
     padding: 10px 14px;
   }
+
+  .repo-table-wrap {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
 }
 
 @media (max-width: 480px) {
+  .search-input-wrap {
+    height: 52px;
+    min-height: 52px;
+  }
+
+  .dashboard {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+
+  .dashboard-inner {
+    width: 100%;
+    max-width: 100%;
+  }
+
   .skills-grid {
     grid-template-columns: 1fr;
+  }
+
+  .skills-layout,
+  .languages-list,
+  .overview-main,
+  .panel-header {
+    padding: 16px;
   }
 
   .dashboard-actions .btn {

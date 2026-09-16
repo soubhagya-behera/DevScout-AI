@@ -142,3 +142,8 @@
 .analyze-btn span {
   font-size: 15px;
 }
+
+/* Compact hero when dashboard is visible (analyzed state) */
+.app.has-dashboard .hero {
+  padding: 48px 16px 32px;
+}

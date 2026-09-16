@@ -71,6 +71,15 @@ button:focus-visible {
   flex: 1;
 }
 
+/* Analyzed state: prevent sticky-footer stretch from creating huge gaps */
+.app.has-dashboard {
+  min-height: auto;
+}
+
+.app.has-dashboard .app-main {
+  flex: none;
+}
+
 /* ---------- Buttons ---------- */
 
 .btn {
@@ -199,6 +208,10 @@ button:focus-visible {
 }
 
 /* ---------- Footer ---------- */
+
+.app.has-dashboard .app-footer {
+  margin-top: 32px;
+}
 
 .app-footer {
   margin-top: 80px;

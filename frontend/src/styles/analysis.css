@@ -101,6 +101,15 @@
   min-width: 0;
 }
 
+/* Compact dashboard spacing when analyzed */
+.app.has-dashboard .dashboard {
+  margin-top: 32px;
+}
+
+.app.has-dashboard .dashboard-inner {
+  padding-bottom: 32px;
+}
+
 /* ---------- Overview ---------- */
 
 .overview-panel {
