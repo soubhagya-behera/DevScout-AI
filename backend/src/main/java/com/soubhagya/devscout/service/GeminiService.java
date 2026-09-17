@@ -3,6 +3,8 @@ package com.soubhagya.devscout.service;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.soubhagya.devscout.dto.DeveloperAnalysisData;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
@@ -15,6 +17,13 @@ import java.util.Map;
 
 @Service
 public class GeminiService {
+
+    // TEMPORARY DIAGNOSTIC (Phase 10.2G) — envelope-metadata logging ONLY:
+    // finishReason, candidate/part counts, per-part thought flag + TEXT LENGTH.
+    // NEVER logs: apiKey, request URL, prompt, Gemini text, response body.
+    // REMOVE in the fix phase; do not ship to production.
+    private static final Logger diagLog =
+            LoggerFactory.getLogger(GeminiService.class);
 
     @Value("${gemini.api.key}")
     private String apiKey;
@@ -256,6 +265,10 @@ private String sendPrompt(
                         response.getBody()
                 );
 
+        // TEMPORARY DIAGNOSTIC (Phase 10.2G): inspect envelope shape.
+        // Logs metadata + lengths only; never text, prompt, key, or URL.
+        logTempDiagEnvelope(root);
+
         return root
                 .path("candidates")
                 .get(0)
@@ -267,9 +280,82 @@ private String sendPrompt(
 
     } catch (Exception e) {
 
+        // TEMPORARY DIAGNOSTIC (Phase 10.2G): exception class only.
+        diagLog.warn(
+                "TEMP-DIAG Gemini parse failure: {}",
+                e.getClass().getSimpleName()
+        );
+
         return "Error parsing Gemini response";
     }
 }
+
+    // TEMPORARY DIAGNOSTIC (Phase 10.2G) — REMOVE in the fix phase.
+    // Reads candidates.size(), finishReason, parts.size(), per-part
+    // thought flag and text LENGTH. Never logs text, prompt, key, URL.
+    // Self-guarded: can never throw, so extraction behavior is unchanged.
+    private static void logTempDiagEnvelope(JsonNode root) {
+
+        try {
+
+            JsonNode candidates =
+                    root.path("candidates");
+
+            int candidateCount =
+                    candidates.isArray() ? candidates.size() : -1;
+
+            JsonNode first =
+                    candidates.isArray() && candidates.size() > 0
+                            ? candidates.get(0)
+                            : null;
+
+            String finishReason =
+                    first != null
+                            ? first.path("finishReason").asText("MISSING")
+                            : "NO_CANDIDATES";
+
+            JsonNode parts =
+                    first != null
+                            ? first.path("content").path("parts")
+                            : null;
+
+            int partCount =
+                    parts != null && parts.isArray() ? parts.size() : -1;
+
+            StringBuilder perPart =
+                    new StringBuilder();
+
+            if (parts != null && parts.isArray()) {
+
+                for (int i = 0; i < parts.size(); i++) {
+
+                    JsonNode part = parts.get(i);
+
+                    perPart.append("part[").append(i).append("]: thought=")
+                            .append(part.path("thought").asBoolean(false))
+                            .append(" hasText=").append(part.hasNonNull("text"))
+                            .append(" textLength=")
+                            .append(part.path("text").asText("").length())
+                            .append("; ");
+                }
+            }
+
+            diagLog.warn(
+                    "TEMP-DIAG Gemini envelope: finishReason={} candidates={} parts={} {}",
+                    finishReason,
+                    candidateCount,
+                    partCount,
+                    perPart.toString()
+            );
+
+        } catch (Exception diagEx) {
+
+            diagLog.warn(
+                    "TEMP-DIAG envelope inspection failed: {}",
+                    diagEx.getClass().getSimpleName()
+            );
+        }
+    }
 
 private ResponseEntity<String> postWithRetries(
         String url,
