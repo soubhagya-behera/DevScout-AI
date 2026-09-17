@@ -231,11 +231,6 @@ private String sendPrompt(
                             300,
                             "temperature",
                             0.2
-                    ),
-                    "thinkingConfig",
-                    Map.of(
-                            "thinkingBudget",
-                            0
                     )
             );
 
