@@ -50,11 +50,11 @@ export const downloadReport = (username, report) => {
   doc.setFont("helvetica", "normal");
 
   const scores = [
-    `Overall Score : ${report.overallScore}`,
-    `Backend Score : ${report.backendScore}`,
-    `Frontend Score : ${report.frontendScore}`,
-    `Database Score : ${report.databaseScore}`,
-    `AI Score : ${report.aiScore}`,
+    `Overall Score : ${report.overallScore ?? "N/A"}`,
+    `Backend Score : ${report.backendScore ?? "N/A"}`,
+    `Frontend Score : ${report.frontendScore ?? "N/A"}`,
+    `Database Score : ${report.databaseScore ?? "N/A"}`,
+    `AI Score : ${report.aiScore ?? "N/A"}`,
   ];
 
   scores.forEach((item) => {
@@ -76,7 +76,9 @@ export const downloadReport = (username, report) => {
   doc.setFontSize(11);
   doc.setFont("helvetica", "normal");
 
-  const techText = Object.keys(report.technologies).join(", ");
+  const techText = report.technologies && typeof report.technologies === "object" && Object.keys(report.technologies).length > 0
+    ? Object.keys(report.technologies).join(", ")
+    : "Not detected";
 
   const techLines = doc.splitTextToSize(
     techText,
@@ -104,7 +106,7 @@ export const downloadReport = (username, report) => {
   doc.setFont("helvetica", "normal");
 
   const summaryLines = doc.splitTextToSize(
-    report.aiAnalysis,
+    report.aiAnalysis || "AI analysis not available.",
     170
   );
 

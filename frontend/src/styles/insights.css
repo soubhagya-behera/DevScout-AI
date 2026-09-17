@@ -14,6 +14,38 @@
   padding: 14px 20px;
 }
 
+.insights-panel--ai .panel-header {
+  background: var(--surface-deep);
+}
+
+.ai-badge {
+  display: inline-flex;
+  align-items: center;
+  height: 22px;
+  padding: 0 8px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 500;
+  border: 1px solid rgba(139,92,246,0.3);
+  background: rgba(139,92,246,0.08);
+  color: #c4b5fd;
+}
+
+.panel-subtitle {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+
+.ai-fallback-notice {
+  font-size: 12px;
+  color: var(--text-muted);
+  background: rgba(245,158,11,0.08);
+  border: 1px solid rgba(245,158,11,0.2);
+  border-radius: 8px;
+  padding: 10px 12px;
+}
+
 .insights-label {
   font-size: 12px;
   color: var(--text-secondary);

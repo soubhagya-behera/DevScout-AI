@@ -17,6 +17,7 @@ function OverviewSection({ profile, report, username, languages }) {
     <div className="section-stack">
       <DeveloperOverviewCard
         profile={profile}
+        report={report}
         username={username}
         overallScore={report.overallScore}
       />
@@ -24,7 +25,7 @@ function OverviewSection({ profile, report, username, languages }) {
       <section className="panel skills-panel">
         <div className="panel-header">
           <h3 className="panel-title">Engineering skill scores</h3>
-          <span className="panel-note">Detected from technology usage</span>
+          <span className="panel-note">GitHub evidence scores · 0–100 · deterministic</span>
         </div>
         <div className="skills-layout">
           <div className="skills-grid">

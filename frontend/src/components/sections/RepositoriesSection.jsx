@@ -1,13 +1,21 @@
 function RepositoriesSection({ repoAnalysis, totalRepositories }) {
   const repos = repoAnalysis || [];
 
-  const extractTech = (analysis) => {
+  const extractTechLegacy = (analysis) => {
     const match = analysis?.match(/Technologies detected:\s*(.*)/i);
     if (!match) return [];
     const raw = match[1].trim();
     if (raw === "None" || raw === "") return [];
     return raw.split(",").map((item) => item.trim()).filter(Boolean);
   };
+
+  const getTechs = (repo) => {
+    if (Array.isArray(repo.technologies)) return repo.technologies;
+    if (repo.analysis) return extractTechLegacy(repo.analysis);
+    return [];
+  };
+
+  const getName = (repo) => repo.name || repo.repositoryName || "Unknown";
 
   return (
     <div className="section-stack">
@@ -30,40 +38,39 @@ function RepositoriesSection({ repoAnalysis, totalRepositories }) {
             </p>
           </div>
         ) : (
-          <div className="repo-table-wrap">
-            <table className="repo-table">
-              <thead>
-                <tr>
-                  <th>Repository</th>
-                  <th>Technology signals</th>
-                </tr>
-              </thead>
-              <tbody>
-                {repos.map((repo) => {
-                  const techs = extractTech(repo.analysis);
-                  return (
-                    <tr key={repo.repositoryName}>
-                      <td className="repo-name">{repo.repositoryName}</td>
-                      <td>
-                        {techs.length > 0 ? (
-                          <span className="repo-techs">
-                            {techs.map((tech) => (
-                              <span className="tech-badge" key={tech}>
-                                {tech}
-                              </span>
-                            ))}
-                          </span>
-                        ) : (
-                          <span className="repo-none">
-                            No technologies detected
-                          </span>
-                        )}
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
+          <div className="repo-grid">
+            {repos.map((repo) => {
+              const techs = getTechs(repo);
+              const name = getName(repo);
+              const recency = repo.recency;
+              const updated = repo.updatedAt ? new Date(repo.updatedAt).toLocaleDateString() : null;
+              return (
+                <article key={name} className="repo-card">
+                  <div className="repo-card-header">
+                    <h4 className="repo-card-name">{name}</h4>
+                    <div className="repo-card-badges">
+                      {repo.language && <span className="repo-badge repo-badge-lang">{repo.language}</span>}
+                      {repo.stars != null && <span className="repo-badge" title="Stars">★ {repo.stars}</span>}
+                      {repo.forks != null && repo.forks > 0 && <span className="repo-badge" title="Forks">⑂ {repo.forks}</span>}
+                      {recency && <span className={`repo-badge recency-${recency.toLowerCase()}`}>{recency}</span>}
+                      {repo.fork && <span className="repo-badge repo-badge-fork">fork</span>}
+                      {repo.archived && <span className="repo-badge repo-badge-archived">archived</span>}
+                    </div>
+                  </div>
+                  {repo.description && <p className="repo-card-desc">{repo.description}</p>}
+                  {updated && <div className="repo-card-meta">Updated {updated}</div>}
+                  <div className="repo-card-techs">
+                    {techs.length > 0 ? (
+                      techs.map((tech) => (
+                        <span className="tech-badge" key={tech}>{tech}</span>
+                      ))
+                    ) : (
+                      <span className="repo-none">No technologies detected</span>
+                    )}
+                  </div>
+                </article>
+              );
+            })}
           </div>
         )}
       </section>

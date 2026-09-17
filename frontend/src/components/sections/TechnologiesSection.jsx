@@ -12,7 +12,7 @@ function TechnologiesSection({ technologies }) {
         <div className="panel-header">
           <h3 className="panel-title">Technology stack</h3>
           <span className="panel-note">
-            Detected from repository descriptions
+            Detected from repositories · name, description, topics and manifests
           </span>
         </div>
 

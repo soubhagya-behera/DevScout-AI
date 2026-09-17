@@ -154,28 +154,46 @@ No explanations.
         return sendPrompt(prompt);
 
     } catch (Exception e) {
-
-        return """
-                LEVEL: Intermediate Java Full Stack Developer
-
-                TOP_STRENGTHS:
-                - Spring Boot
-                - React
-                - MySQL
-                - REST APIs
-                - GitHub API Integration
-
-                IMPROVEMENTS:
-                - Docker
-                - AWS
-                - CI/CD
-                - Microservices
-
-                HIRING_RECOMMENDATION:
-                Suitable for Java Backend Developer and Full Stack Developer roles.
-                """;
+        return buildStackNeutralFallback(data);
     }
 }
+
+    String buildStackNeutralFallback(DeveloperAnalysisData data) {
+        Map<String,Integer> techs = data.getTechnologies();
+        String techSummary;
+        if (techs == null || techs.isEmpty()) {
+            techSummary = "no specific technology stack was strongly detected";
+        } else {
+            List<String> top = techs.entrySet().stream()
+                    .sorted(Map.Entry.<String,Integer>comparingByValue().reversed())
+                    .limit(5)
+                    .map(Map.Entry::getKey)
+                    .toList();
+            techSummary = String.join(", ", top);
+        }
+        String profileHint = "General Software Developer";
+        int overall = data.getOverallScore();
+        if (overall >= 75) profileHint = "experienced developer";
+        else if (overall >= 50) profileHint = "intermediate developer";
+        else if (overall >= 30) profileHint = "developing developer";
+        else profileHint = "early-stage developer";
+        String displayTechs = techSummary;
+        return """
+                LEVEL: %s
+
+                TOP_STRENGTHS:
+                - %s
+                - Deterministic signals indicate activity
+
+                IMPROVEMENTS:
+                - Expand test coverage
+                - Improve documentation
+                - Strengthen CI/CD practices
+
+                HIRING_RECOMMENDATION:
+                AI insights are temporarily unavailable. Deterministic analysis identified this profile as %s with strengths across %s.
+                """.formatted(profileHint, displayTechs, profileHint, displayTechs);
+    }
 
 private String sendPrompt(
         String prompt

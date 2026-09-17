@@ -133,3 +133,100 @@
   color: var(--text-muted);
   font-variant-numeric: tabular-nums;
 }
+
+/* ---------- Repository cards (Phase 7) ---------- */
+.repo-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 12px;
+  padding: 16px 20px 20px;
+}
+
+.repo-card {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface-deep);
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.repo-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.repo-card-name {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+  word-break: break-word;
+}
+
+.repo-card-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.repo-badge {
+  display: inline-flex;
+  align-items: center;
+  height: 20px;
+  padding: 0 8px;
+  border-radius: 999px;
+  font-size: 11px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text-muted);
+}
+
+.repo-badge-lang {
+  color: var(--text-secondary);
+  font-family: var(--font-mono);
+}
+
+.repo-badge-fork,
+.repo-badge-archived {
+  border-color: var(--border-strong);
+  color: var(--text-faint);
+}
+
+.recency-recent {
+  border-color: rgba(34,197,94,0.3);
+  color: #86efac;
+}
+.recency-active {
+  border-color: rgba(245,158,11,0.25);
+  color: #fcd34d;
+}
+.recency-stale {
+  color: var(--text-faint);
+}
+
+.repo-card-desc {
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--text-secondary);
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.repo-card-meta {
+  font-size: 11px;
+  color: var(--text-faint);
+}
+
+.repo-card-techs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: auto;
+}

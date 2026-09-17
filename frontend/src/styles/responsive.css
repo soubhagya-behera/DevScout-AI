@@ -344,5 +344,26 @@
 
   .dashboard-actions .btn {
     flex: 1;
+    min-height: 44px;
+  }
+
+  .dashboard-identity {
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  .dashboard-identity-text {
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+
+  .overall-group {
+    flex-wrap: wrap;
+    min-width: 0;
+  }
+
+  .repo-grid {
+    grid-template-columns: 1fr;
+    padding: 12px 16px 16px;
   }
 }

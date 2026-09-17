@@ -1,8 +1,14 @@
 package com.soubhagya.devscout.dto;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import java.util.List;
 
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class FeaturedRepositoryDTO {
 
     private String name;
@@ -18,4 +24,10 @@ public class FeaturedRepositoryDTO {
     private String updatedAt;
 
     private boolean fork;
+
+    private boolean archived;
+
+    private String recency;
+
+    private List<String> technologies;
 }

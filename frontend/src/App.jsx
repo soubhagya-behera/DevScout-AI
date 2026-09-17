@@ -6,14 +6,9 @@ import LoadingSequence from "./components/LoadingSequence";
 import Dashboard from "./components/Dashboard";
 import { downloadReport } from "./services/pdfService";
 import {
-  getReport,
-  getProfile,
-  getRepoAnalysis,
-  getAnalyze
+  getUnifiedReport
 } from "./services/api";
 import "./styles/App.css";
-
-const MIN_STEP_MS = 750;
 
 function App() {
   const [username, setUsername] = useState("");
@@ -23,7 +18,6 @@ function App() {
   const [repoAnalysis, setRepoAnalysis] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [phase, setPhase] = useState(0);
   const requestIdRef = useRef(0);
 
   const scrollToDashboard = () => {
@@ -48,13 +42,11 @@ function App() {
 
     setError("");
     setLoading(true);
-    setPhase(0);
     setReport(null);
     setProfile(null);
     setLanguages(null);
     setRepoAnalysis(null);
 
-    const t0 = Date.now();
     let settled = false;
 
     const isCurrent = () => requestIdRef.current === requestId;
@@ -65,54 +57,49 @@ function App() {
       setLoading(false);
     };
 
-    const schedulePhase = (n) => {
-      const wait = Math.max(0, n * MIN_STEP_MS - (Date.now() - t0));
-      window.setTimeout(() => {
-        if (isCurrent()) {
-          setPhase((current) => Math.max(current, n));
-        }
-      }, wait);
-    };
+    const trimmed = username.trim();
 
-    getProfile(username)
-      .then((profileData) => {
-        if (!isCurrent()) return;
-        setProfile(profileData);
-        schedulePhase(1);
-      })
-      .catch(() => {});
-
-    getReport(username)
+    getUnifiedReport(trimmed)
       .then((reportData) => {
         if (!isCurrent()) return;
         setReport(reportData);
-        schedulePhase(3);
+        const derivedProfile = {
+          username: reportData.username,
+          totalRepositories: reportData.totalRepositories,
+          primaryLanguage: reportData.primaryLanguage || "Unknown",
+        };
+        setProfile(derivedProfile);
+        setLanguages(reportData.languages || {});
+        if (reportData.featuredRepositories) {
+          setRepoAnalysis(reportData.featuredRepositories);
+        } else {
+          setRepoAnalysis([]);
+        }
         window.setTimeout(() => {
           finishLoading();
           scrollToDashboard();
-        }, 450);
+        }, 320);
       })
       .catch((err) => {
         if (!isCurrent()) return;
         console.error(err);
-        setError("GitHub user not found. Please enter a valid username.");
+        const status = err?.response?.status;
+        const code = err?.response?.data?.code;
+        if (status === 404 || code === "USER_NOT_FOUND") {
+          setError("GitHub user not found. Please enter a valid username.");
+        } else if (status === 429 || code === "RATE_LIMITED") {
+          setError("GitHub rate limit exceeded. Please try again in a few minutes.");
+        } else if (code === "GITHUB_UNAVAILABLE") {
+          setError("GitHub is temporarily unavailable. Please try again shortly.");
+        } else if (status === 503 || code === "GITHUB_AUTH_FAILED") {
+          setError("GitHub service is temporarily unavailable. Please try again later.");
+        } else if (status === 400) {
+          setError("Please enter a valid GitHub username.");
+        } else {
+          setError("Failed to analyze profile. Please try again.");
+        }
         finishLoading();
       });
-
-    getRepoAnalysis(username)
-      .then((data) => {
-        if (!isCurrent()) return;
-        if (data) setRepoAnalysis(data);
-        schedulePhase(2);
-      })
-      .catch(() => schedulePhase(2));
-
-    getAnalyze(username)
-      .then((data) => {
-        if (!isCurrent()) return;
-        if (data && data.languages) setLanguages(data.languages);
-      })
-      .catch(() => {});
   };
 
   const handleNewAnalysis = () => {
@@ -122,7 +109,6 @@ function App() {
     setLanguages(null);
     setRepoAnalysis(null);
     setError("");
-    setPhase(0);
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
@@ -142,7 +128,7 @@ function App() {
         />
 
         {loading && (
-          <LoadingSequence phase={phase} username={username} />
+          <LoadingSequence username={username} />
         )}
 
         {!loading && !report && <ProductPreview />}

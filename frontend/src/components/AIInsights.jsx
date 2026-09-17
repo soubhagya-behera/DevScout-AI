@@ -48,11 +48,18 @@ function AIInsights({ analysis }) {
   const improvements = parsed.improvements;
   const hiring = parsed.hiring || "Not found";
 
+  const isFallback = analysis && (analysis.includes("temporarily unavailable") || analysis.includes("Deterministic analysis"));
+
   return (
     <div className="insights">
+      {isFallback && (
+        <div className="ai-fallback-notice" role="note">
+          AI insights temporarily unavailable — showing deterministic fallback based on detected evidence.
+        </div>
+      )}
       <div className="panel insights-level">
-        <span className="insights-label">Assessed level</span>
-        <span className="level-tag level-tag-large">{level}</span>
+        <span className="insights-label">AI-assessed level</span>
+        <span className="level-tag level-tag-large" title="AI interpretation of GitHub evidence, not a verified fact">{level}</span>
       </div>
 
       <div className="insights-grid">

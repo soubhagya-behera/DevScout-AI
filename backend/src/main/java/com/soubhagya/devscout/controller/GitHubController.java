@@ -120,12 +120,22 @@ public String candidateReport(
             );
 }
 
+@GetMapping("/report/{username}")
+public FinalReportDTO report(
+        @PathVariable String username
+) {
+    return gitHubService
+            .getOrGenerateReport(
+                    username
+            );
+}
+
 @GetMapping("/final-report/{username}")
 public FinalReportDTO finalReport(
         @PathVariable String username
 ) {
     return gitHubService
-            .generateFinalReport(
+            .getOrGenerateReport(
                     username
             );
 }

@@ -38,24 +38,42 @@ function Dashboard({
       <div className="dashboard-inner">
         <header className="dashboard-header">
           <div className="dashboard-identity">
-            <div className="avatar">{username.charAt(0).toUpperCase()}</div>
+            <div className="avatar" aria-hidden="true">{(username || report.username || "?").charAt(0).toUpperCase()}</div>
             <div className="dashboard-identity-text">
-              <div className="dashboard-username">{username}</div>
-              <div className="dashboard-sub">github.com/{username}</div>
+              <div className="dashboard-username">{report.username || username || "Unknown"}</div>
+              <a className="dashboard-sub" href={`https://github.com/${encodeURIComponent(username || report.username || "")}`} target="_blank" rel="noreferrer">github.com/{username || report.username}</a>
+              <div className="dashboard-badges">
+                <span className="profile-badge">{report.profileType || "Unknown"}</span>
+                {report.confidence && (
+                  <span className={`confidence-badge confidence-${report.confidence.toLowerCase()}`}>
+                    Confidence: {report.confidence}
+                  </span>
+                )}
+                {report.experienceLevel && (
+                  <span className="experience-badge" title="Represents GitHub evidence depth, not employment years">
+                    {report.experienceLevel} · GitHub evidence
+                  </span>
+                )}
+              </div>
             </div>
           </div>
 
           <div className="dashboard-actions">
-            <span className="level-tag">
-              {overallLevel(report.overallScore)}
-            </span>
-            <span className="overall-chip">
-              Score <strong>{report.overallScore}</strong>
-            </span>
+            <div className="overall-group">
+              <span className="overall-chip" aria-label={`Overall GitHub evidence score ${report.overallScore} out of 100`}>
+                <span className="overall-chip-label">GitHub evidence score</span>
+                <strong>{report.overallScore}</strong>
+                <span className="overall-chip-level">{overallLevel(report.overallScore)}</span>
+              </span>
+              {report.primaryLanguage && report.primaryLanguage !== "Unknown" && (
+                <span className="primary-lang-badge">{report.primaryLanguage}</span>
+              )}
+            </div>
             <button
               type="button"
               className="btn btn-secondary"
               onClick={onDownload}
+              aria-label="Export report as PDF"
             >
               Export PDF
             </button>
@@ -63,6 +81,7 @@ function Dashboard({
               type="button"
               className="btn btn-primary"
               onClick={onNewAnalysis}
+              aria-label="Start new analysis"
             >
               New analysis
             </button>

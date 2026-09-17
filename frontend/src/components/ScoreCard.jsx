@@ -20,18 +20,21 @@ function ScoreCard({ title, score, delay = 0 }) {
           : "Beginner";
 
   return (
-    <div className="score-card" style={{ animationDelay: `${delay}ms` }}>
+    <div className="score-card" style={{ animationDelay: `${delay}ms` }} aria-label={`${title} GitHub evidence score ${score} out of 100, ${level}`}>
       <div className="score-card-top">
         <span className="score-card-title">{title}</span>
-        <span className="score-card-value">{value}</span>
+        <span className="score-card-value" aria-hidden="true">{value}</span>
       </div>
-      <div className="progress-track">
+      <div className="progress-track" role="progressbar" aria-valuenow={score} aria-valuemin={0} aria-valuemax={100} aria-label={`${title} score`}>
         <div
           className="progress-fill"
           style={{ width: mounted ? `${score}%` : "0%" }}
         />
       </div>
-      <div className="score-card-level">{level}</div>
+      <div className="score-card-meta">
+        <span className="score-card-level">{level}</span>
+        <span className="score-card-hint">GitHub evidence</span>
+      </div>
     </div>
   );
 }
