@@ -171,12 +171,18 @@ No explanations.
                     .toList();
             techSummary = String.join(", ", top);
         }
-        String profileHint = "General Software Developer";
-        int overall = data.getOverallScore();
-        if (overall >= 75) profileHint = "experienced developer";
-        else if (overall >= 50) profileHint = "intermediate developer";
-        else if (overall >= 30) profileHint = "developing developer";
-        else profileHint = "early-stage developer";
+        // Use authoritative backend experienceLevel when available to avoid contradicting the deterministic report
+        String exp = data.getExperienceLevel();
+        String profileHint;
+        if (exp != null && !exp.isBlank() && List.of("Beginner","Intermediate","Advanced","Expert").contains(exp)) {
+            profileHint = exp;
+        } else {
+            int overall = data.getOverallScore();
+            if (overall >= 75) profileHint = "Expert";
+            else if (overall >= 60) profileHint = "Advanced";
+            else if (overall >= 40) profileHint = "Intermediate";
+            else profileHint = "Beginner";
+        }
         String displayTechs = techSummary;
         return """
                 LEVEL: %s
@@ -191,7 +197,7 @@ No explanations.
                 - Strengthen CI/CD practices
 
                 HIRING_RECOMMENDATION:
-                AI insights are temporarily unavailable. Deterministic analysis identified this profile as %s with strengths across %s.
+                AI insights are temporarily unavailable. This is a deterministic summary based on GitHub evidence for %s with strengths across %s.
                 """.formatted(profileHint, displayTechs, profileHint, displayTechs);
     }
 

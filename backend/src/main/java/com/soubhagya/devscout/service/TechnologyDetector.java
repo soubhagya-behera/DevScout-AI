@@ -353,8 +353,8 @@ public class TechnologyDetector {
     public double weightForStrength(EvidenceStrength s) {
         return switch (s) {
             case STRONG -> 1.0;
-            case MEDIUM -> 1.0;
-            case WEAK -> 0.4;
+            case MEDIUM -> 0.65;
+            case WEAK -> 0.30;
         };
     }
 

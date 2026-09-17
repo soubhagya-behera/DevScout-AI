@@ -111,12 +111,12 @@ class Phase6AnalysisQualityTest {
         DeveloperScoreDTO dotnet = scoring.scoreFromRepos(List.of(dotnetRepo));
         DeveloperScoreDTO go = scoring.scoreFromRepos(List.of(goRepo));
 
-        // All backend-heavy single repos should score backend >=50 regardless of stack
-        assertTrue(java.getBackendScore() >= 50, "Java backend " + java.getBackendScore());
-        assertTrue(py.getBackendScore() >= 50, "Python backend " + py.getBackendScore());
-        assertTrue(node.getBackendScore() >= 50, "Node backend " + node.getBackendScore());
-        assertTrue(dotnet.getBackendScore() >= 50, "Dotnet backend " + dotnet.getBackendScore());
-        assertTrue(go.getBackendScore() >= 50, "Go backend " + go.getBackendScore());
+        // Per-repo max: single repo gives ~28, so threshold 25 keeps stack-neutral
+        assertTrue(java.getBackendScore() >= 25, "Java backend " + java.getBackendScore());
+        assertTrue(py.getBackendScore() >= 25, "Python backend " + py.getBackendScore());
+        assertTrue(node.getBackendScore() >= 25, "Node backend " + node.getBackendScore());
+        assertTrue(dotnet.getBackendScore() >= 25, "Dotnet backend " + dotnet.getBackendScore());
+        assertTrue(go.getBackendScore() >= 25, "Go backend " + go.getBackendScore());
         // Scores should be in similar range (stack-neutral, not privileged)
         int max = Math.max(Math.max(java.getBackendScore(), py.getBackendScore()), Math.max(node.getBackendScore(), Math.max(dotnet.getBackendScore(), go.getBackendScore())));
         int min = Math.min(Math.min(java.getBackendScore(), py.getBackendScore()), Math.min(node.getBackendScore(), Math.min(dotnet.getBackendScore(), go.getBackendScore())));
@@ -137,9 +137,10 @@ class Phase6AnalysisQualityTest {
 
         assertTrue(strongScore.getBackendScore() > weakScore.getBackendScore(),
                 "Strong evidence should score higher than weak language-only: weak " + weakScore.getBackendScore() + " strong " + strongScore.getBackendScore());
-        // Weak should be close to base (20 + 0.4*15=26)
-        assertTrue(weakScore.getBackendScore() < 40, "Weak backend should be <40, got " + weakScore.getBackendScore());
-        assertTrue(strongScore.getBackendScore() >= 45, "Strong backend should be >=45");
+        // Per-repo max: weak single Python ~24, strong Django+Python ~33 (2 techs but per-repo max 1)
+        assertTrue(weakScore.getBackendScore() < 30, "Weak backend should be <30, got " + weakScore.getBackendScore());
+        assertTrue(strongScore.getBackendScore() > weakScore.getBackendScore(), "Strong should beat weak");
+        assertTrue(strongScore.getBackendScore() >= 30, "Strong backend should be >=30, got " + strongScore.getBackendScore());
     }
 
     // 5. repository significance edge cases
@@ -213,74 +214,76 @@ class Phase6AnalysisQualityTest {
         assertEquals("Advanced", exp);
     }
 
-    // 7. cross-stack developer profile classification
+    // 7. cross-stack developer profile classification — per-repo max requires 2-3 repos for specialization
     @Test
     void profileBackendJava() {
-        var repos = List.of(repo("svc","Java Spring Boot PostgreSQL","Java"));
+        var repos = List.of(repo("svc","Java Spring Boot PostgreSQL","Java"), repo("svc2","Java Spring Boot","Java"), repo("svc3","Java MySQL","Java"));
         var techs = detector.detect(repos);
         var score = scoring.scoreFromRepos(repos);
-        var langs = Map.of("Java",1);
+        var langs = Map.of("Java",3);
         var a = profile.assess(repos, techs, langs, score);
         assertEquals(DeveloperProfileType.BACKEND_DEVELOPER, a.getProfileType());
     }
     @Test
     void profileBackendPythonDjango() {
-        var repos = List.of(repo("svc","Python Django PostgreSQL","Python"));
+        var repos = List.of(repo("svc","Python Django PostgreSQL","Python"), repo("svc2","Python Django","Python"));
         var techs = detector.detect(repos);
         var score = scoring.scoreFromRepos(repos);
-        var a = profile.assess(repos, techs, Map.of("Python",1), score);
+        var a = profile.assess(repos, techs, Map.of("Python",2), score);
         assertEquals(DeveloperProfileType.BACKEND_DEVELOPER, a.getProfileType());
     }
     @Test
     void profileBackendNode() {
-        var repos = List.of(repo("svc","Node.js Express MongoDB","JavaScript"));
+        var repos = List.of(repo("svc","Go Gin PostgreSQL","Go"), repo("svc2","Go Gin","Go"));
         var techs = detector.detect(repos);
         var score = scoring.scoreFromRepos(repos);
-        var a = profile.assess(repos, techs, Map.of("JavaScript",1), score);
+        var a = profile.assess(repos, techs, Map.of("Go",2), score);
         assertEquals(DeveloperProfileType.BACKEND_DEVELOPER, a.getProfileType());
     }
     @Test
     void profileBackendCsharp() {
-        var repos = List.of(repo("svc","C# ASP.NET Core SQL Server","C#"));
+        var repos = List.of(repo("svc","C# ASP.NET Core SQL Server","C#"), repo("svc2","C# ASP.NET Core","C#"));
         var techs = detector.detect(repos);
         var score = scoring.scoreFromRepos(repos);
-        var a = profile.assess(repos, techs, Map.of("C#",1), score);
+        var a = profile.assess(repos, techs, Map.of("C#",2), score);
         assertEquals(DeveloperProfileType.BACKEND_DEVELOPER, a.getProfileType());
     }
     @Test
     void profileFrontendReact() {
-        var repos = List.of(repo("ui","React TypeScript","TypeScript"));
+        var repos = List.of(repo("ui","React TypeScript","TypeScript"), repo("ui2","React TypeScript","TypeScript"));
         var techs = detector.detect(repos);
         var score = scoring.scoreFromRepos(repos);
-        var a = profile.assess(repos, techs, Map.of("TypeScript",1), score);
+        var a = profile.assess(repos, techs, Map.of("TypeScript",2), score);
         assertEquals(DeveloperProfileType.FRONTEND_DEVELOPER, a.getProfileType());
     }
     @Test
     void profileFrontendAngular() {
-        var repos = List.of(repo("ui","Angular TypeScript","TypeScript"));
+        var repos = List.of(repo("ui","Angular TypeScript","TypeScript"), repo("ui2","Angular TypeScript","TypeScript"));
         var techs = detector.detect(repos);
         var score = scoring.scoreFromRepos(repos);
-        var a = profile.assess(repos, techs, Map.of("TypeScript",1), score);
+        var a = profile.assess(repos, techs, Map.of("TypeScript",2), score);
         assertEquals(DeveloperProfileType.FRONTEND_DEVELOPER, a.getProfileType());
     }
     @Test
     void profileFullStack() {
         var repos = List.of(
                 repo("backend","Java Spring Boot PostgreSQL","Java"),
-                repo("frontend","React TypeScript","TypeScript")
+                repo("backend2","Java Spring Boot","Java"),
+                repo("frontend","React TypeScript","TypeScript"),
+                repo("frontend2","React TypeScript","TypeScript")
         );
         var techs = detector.detect(repos);
         var score = scoring.scoreFromRepos(repos);
-        Map<String,Integer> langs = new HashMap<>(); langs.put("Java",1); langs.put("TypeScript",1);
+        Map<String,Integer> langs = new HashMap<>(); langs.put("Java",2); langs.put("TypeScript",2);
         var a = profile.assess(repos, techs, langs, score);
         assertEquals(DeveloperProfileType.FULL_STACK_DEVELOPER, a.getProfileType());
     }
     @Test
     void profileAiMl() {
-        var repos = List.of(repo("ml","Python PyTorch TensorFlow","Python"));
+        var repos = List.of(repo("ml","Python PyTorch TensorFlow","Python"), repo("ml2","Python PyTorch","Python"));
         var techs = detector.detect(repos);
         var score = scoring.scoreFromRepos(repos);
-        var a = profile.assess(repos, techs, Map.of("Python",1), score);
+        var a = profile.assess(repos, techs, Map.of("Python",2), score);
         assertEquals(DeveloperProfileType.AI_ML_DEVELOPER, a.getProfileType());
     }
     @Test

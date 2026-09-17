@@ -629,6 +629,11 @@ public class GitHubService {
                 score.getOverallScore()
         );
 
+        // Compute deterministic profile BEFORE Gemini so fallback can reuse authoritative experienceLevel (fixes Issue 2)
+        com.soubhagya.devscout.dto.DeveloperProfileAssessment interimAssessment =
+                profileService.assess(repos, technologies, languages, score);
+        data.setExperienceLevel(interimAssessment.getExperienceLevel());
+
         data.setRepositorySummaries(
                 buildRepositorySummaries(repos)
         );
@@ -640,8 +645,7 @@ public class GitHubService {
                                 data
                         );
 
-        com.soubhagya.devscout.dto.DeveloperProfileAssessment profileAssessment =
-                profileService.assess(repos, technologies, languages, score);
+        com.soubhagya.devscout.dto.DeveloperProfileAssessment profileAssessment = interimAssessment;
 
         FinalReportDTO report =
                 new FinalReportDTO();

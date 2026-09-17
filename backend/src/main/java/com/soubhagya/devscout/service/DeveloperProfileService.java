@@ -50,11 +50,11 @@ public class DeveloperProfileService {
 
         int meaningfulRepos = countMeaningfulRepositories(repos);
 
-        // capability signal counts (repo occurrences) and scores
-        int backendCount = countCapability(technologies, TechnologyDetector.Capability.BACKEND);
-        int frontendCount = countCapability(technologies, TechnologyDetector.Capability.FRONTEND);
-        int databaseCount = countCapability(technologies, TechnologyDetector.Capability.DATABASE);
-        int aiCount = countCapability(technologies, TechnologyDetector.Capability.AI);
+        // Phase 10.1: capability signals = distinct repositories per capability (per-repo max, not per-tech sum)
+        int backendCount = countDistinctRepos(repos, TechnologyDetector.Capability.BACKEND);
+        int frontendCount = countDistinctRepos(repos, TechnologyDetector.Capability.FRONTEND);
+        int databaseCount = countDistinctRepos(repos, TechnologyDetector.Capability.DATABASE);
+        int aiCount = countDistinctRepos(repos, TechnologyDetector.Capability.AI);
 
         int backendScore = scores != null ? scores.getBackendScore() : 20;
         int frontendScore = scores != null ? scores.getFrontendScore() : 20;
@@ -71,7 +71,7 @@ public class DeveloperProfileService {
                 backendCount, frontendCount, aiCount, meaningfulRepos, totalRepos
         );
 
-        Confidence confidence = assessConfidence(totalRepos, meaningfulRepos, distinctTechs, breadth, overall);
+        Confidence confidence = assessConfidence(totalRepos, meaningfulRepos, distinctTechs, breadth, overall, repos);
 
         // Experience uses richer signals but preserves label contract
         String experienceLevel = assessExperience(overall, meaningfulRepos, totalRepos, totalStars, breadth, depth, distinctTechs);
@@ -231,78 +231,85 @@ public class DeveloperProfileService {
         boolean hasPandas = techs.containsKey("Pandas");
         boolean hasNumpy = techs.containsKey("NumPy");
         boolean hasSklearn = techs.containsKey("scikit-learn");
-        boolean hasTorch = techs.containsKey("PyTorch") || techs.containsKey("TensorFlow") || techs.containsKey("OpenAI") || techs.containsKey("LangChain");
-
-        // AI/ML vs Data/Backend: strong AI signal
-        if (aiScore >= 50 && aiCount >= 2) {
-            if (hasTorch) return DeveloperProfileType.AI_ML_DEVELOPER;
-            if (hasPandas || hasNumpy || hasSklearn) {
-                // data-heavy without deep learning → Data/Backend
-                // if backend also strong, favor Data/Backend, otherwise AI_ML
-                if (backendScore >= 50) return DeveloperProfileType.DATA_BACKEND_DEVELOPER;
-                return DeveloperProfileType.AI_ML_DEVELOPER;
-            }
+        boolean hasMlLib = techs.containsKey("PyTorch") || techs.containsKey("TensorFlow") || techs.containsKey("scikit-learn");
+        // AI/ML requires actual ML engineering (PyTorch/TensorFlow/scikit-learn), not just API integration
+        if (hasMlLib && aiScore >= 30) {
             return DeveloperProfileType.AI_ML_DEVELOPER;
         }
-        // Single AI signal but strong
-        if (aiScore >= 50 && aiCount >= 1 && hasTorch) {
+        if (!hasMlLib && (hasPandas || hasNumpy) && aiScore >= 30 && aiCount >= 2) {
+            if (backendScore >= 30) return DeveloperProfileType.DATA_BACKEND_DEVELOPER;
             return DeveloperProfileType.AI_ML_DEVELOPER;
         }
 
-        // Full stack: both backend and frontend meaningful
-        boolean backendStrong = backendScore >= 50;
-        boolean frontendStrong = frontendScore >= 50;
+        // Full stack: both backend and frontend meaningful (calibrated for diminishing+quality)
+        boolean backendStrong = backendScore >= 30;
+        boolean frontendStrong = frontendScore >= 30;
         if (backendStrong && frontendStrong) {
             return DeveloperProfileType.FULL_STACK_DEVELOPER;
         }
-        // Java full-stack case: backend dominant + frontend moderate + database
-        if (backendScore >= 60 && frontendScore >= 35 && databaseScore >= 35) {
-            // Could be full-stack backend-heavy but still full-stack
+        // Full-stack backend-heavy with database
+        if (backendScore >= 40 && frontendScore >= 28 && databaseScore >= 28) {
             if (frontendCount >= 1) return DeveloperProfileType.FULL_STACK_DEVELOPER;
         }
 
         // Frontend specialist
-        if (frontendScore >= 60 && frontendScore > backendScore + 15) {
+        if (frontendScore >= 45 && frontendScore > backendScore + 10) {
             return DeveloperProfileType.FRONTEND_DEVELOPER;
         }
-        if (frontendScore >= 50 && frontendCount >= 2 && backendScore < 40) {
+        if (frontendScore >= 35 && frontendCount >= 2 && backendScore < 30) {
             return DeveloperProfileType.FRONTEND_DEVELOPER;
         }
 
         // Backend specialist (covers Java/Python/Go/.NET/PHP/Ruby)
-        if (backendScore >= 55 && backendScore > frontendScore + 10) {
+        if (backendScore >= 40 && backendScore > frontendScore + 8) {
             return DeveloperProfileType.BACKEND_DEVELOPER;
         }
-        if (backendScore >= 50 && backendCount >= 1 && frontendScore < 50) {
-            // generic backend with at least one backend tech
+        if (backendScore >= 35 && backendCount >= 1 && frontendScore < 35) {
             return DeveloperProfileType.BACKEND_DEVELOPER;
         }
 
         // Fallbacks
-        if (frontendScore >= 40 && frontendScore >= backendScore) {
+        if (frontendScore >= 30 && frontendScore >= backendScore) {
             return DeveloperProfileType.FRONTEND_DEVELOPER;
         }
-        if (backendScore >= 40) {
+        if (backendScore >= 30) {
             return DeveloperProfileType.BACKEND_DEVELOPER;
         }
-        if (frontendScore >= 35 || backendScore >= 35 || aiScore >= 35) {
+        if (frontendScore >= 28 || backendScore >= 28 || aiScore >= 28) {
             return DeveloperProfileType.GENERAL_SOFTWARE_DEVELOPER;
         }
         return DeveloperProfileType.UNKNOWN;
     }
 
     Confidence assessConfidence(int totalRepos, int meaningfulRepos, int distinctTechs, int breadth, int overall) {
+        return assessConfidence(totalRepos, meaningfulRepos, distinctTechs, breadth, overall, Collections.emptyList());
+    }
+
+    Confidence assessConfidence(int totalRepos, int meaningfulRepos, int distinctTechs, int breadth, int overall, List<GitHubRepoDTO> repos) {
         if (totalRepos == 0 || meaningfulRepos == 0) return Confidence.LOW;
+        Confidence base;
         if (totalRepos >= 8 && meaningfulRepos >= 5 && distinctTechs >= 4 && breadth >= 2 && overall >= 50) {
-            return Confidence.HIGH;
+            base = Confidence.HIGH;
+        } else if (totalRepos >= 4 && meaningfulRepos >= 3 && (distinctTechs >= 3 || breadth >= 2) && overall >= 35) {
+            base = Confidence.MEDIUM;
+        } else if (totalRepos >= 2 && meaningfulRepos >= 2 && distinctTechs >= 2) {
+            base = Confidence.MEDIUM;
+        } else {
+            return Confidence.LOW;
         }
-        if (totalRepos >= 4 && meaningfulRepos >= 3 && (distinctTechs >= 3 || breadth >= 2) && overall >= 35) {
-            return Confidence.MEDIUM;
+        // Minimal recency guard for HIGH: stale/fork-heavy but entirely old evidence should not stay HIGH.
+        // Historical evidence remains valid, so we only demote HIGH when evidence is explicitly stale with no recent activity.
+        if (base == Confidence.HIGH && repos != null && !repos.isEmpty()) {
+            long recent = repos.stream().filter(r -> "RECENT".equals(classifyRecency(r))).count();
+            long active = repos.stream().filter(r -> "ACTIVE".equals(classifyRecency(r))).count();
+            long stale = repos.stream().filter(r -> "STALE".equals(classifyRecency(r))).count();
+            long known = recent + active + stale;
+            // Only demote if we have known recency and it is entirely stale (or only 0-1 active)
+            if (known > 0 && recent == 0 && active < 2 && stale > 0) {
+                return Confidence.MEDIUM;
+            }
         }
-        if (totalRepos >= 2 && meaningfulRepos >= 2 && distinctTechs >= 2) {
-            return Confidence.MEDIUM;
-        }
-        return Confidence.LOW;
+        return base;
     }
 
     /**
@@ -355,6 +362,22 @@ public class DeveloperProfileService {
             if (c == cap) sum += e.getValue();
         }
         return sum;
+    }
+
+    // Phase 10.1: distinct repositories per capability (per-repo max)
+    int countDistinctRepos(List<GitHubRepoDTO> repos, TechnologyDetector.Capability cap) {
+        if (repos == null || repos.isEmpty()) return 0;
+        int count = 0;
+        for (GitHubRepoDTO repo : repos) {
+            Map<String, TechnologyDetector.EvidenceStrength> perRepo = detector.detectStrengthPerRepo(repo);
+            for (Map.Entry<String, TechnologyDetector.EvidenceStrength> e : perRepo.entrySet()) {
+                if (detector.capabilityForDisplay(e.getKey()) == cap) {
+                    count++;
+                    break;
+                }
+            }
+        }
+        return count;
     }
 
     private int countBreadth(int b,int f,int d,int ai) {

@@ -52,12 +52,9 @@ public class DeveloperScoringService {
     }
 
     /**
-     * Phase 6: evidence-weighted scoring.
-     * Weighted count uses per-repo strength: STRONG=1.0, MEDIUM=0.75, WEAK=0.35.
-     * This ensures language-only evidence (WEAK) scores lower than manifest/README evidence.
+     * Phase 6: evidence-weighted scoring (linear, kept for backward unit tests).
+     * Weighted count uses per-repo strength: STRONG=1.0, MEDIUM=0.65, WEAK=0.30.
      * Formula: score = min(100, BASE + round(weightedCount * PER_SIGNAL)), BASE=20, PER_SIGNAL=15.
-     * Deterministic, stack-neutral, bounds 0-100, explainable.
-     * Does not penalize repos without manifests: they still contribute via MEDIUM/WEAK.
      */
     public DeveloperScoreDTO scoreWeighted(Map<String, Double> weightedCounts) {
         if (weightedCounts == null) weightedCounts = Collections.emptyMap();
@@ -82,14 +79,105 @@ public class DeveloperScoringService {
     }
 
     /**
-     * Phase 6: score directly from repo list using per-repo strength weighting.
+     * Phase 10: calibrated scoring with evidence quality and diminishing returns.
+     * - Evidence strength: STRONG 1.0, MEDIUM 0.65, WEAK 0.30
+     * - Repository quality factor (fork/archived/size/stars/recency) 0.35-1.0
+     * - Diminishing returns per capability (harmonic): effective = sum w_i / (1 + 0.38*i)
+     *   First signal full, second ~0.73, third ~0.57, etc. Broad shallow repos saturate slower.
+     * Keeps stack-neutral, deterministic, 0-100.
      */
     public DeveloperScoreDTO scoreFromRepos(List<com.soubhagya.devscout.dto.GitHubRepoDTO> repos) {
         if (repos == null || repos.isEmpty()) return score(Map.of());
-        Map<String, Double> weighted = detector.detectWeightedCount(repos);
-        // fallback to integer count if weighted is empty due to no evidence (keeps empty profile at BASE)
-        if (weighted.isEmpty()) return score(Map.of());
-        return scoreWeighted(weighted);
+        // Phase 10.1: per-repository per-capability cap — one repo contributes at most once per capability
+        Map<TechnologyDetector.Capability, List<Double>> perCap = new EnumMap<>(TechnologyDetector.Capability.class);
+        for (TechnologyDetector.Capability c : TechnologyDetector.Capability.values()) perCap.put(c, new java.util.ArrayList<>());
+
+        for (com.soubhagya.devscout.dto.GitHubRepoDTO repo : repos) {
+            Map<String, TechnologyDetector.EvidenceStrength> perRepo = detector.detectStrengthPerRepo(repo);
+            double q = qualityFactor(repo);
+            // Collapse to max per capability for this repo
+            Map<TechnologyDetector.Capability, Double> repoCapMax = new EnumMap<>(TechnologyDetector.Capability.class);
+            for (Map.Entry<String, TechnologyDetector.EvidenceStrength> e : perRepo.entrySet()) {
+                TechnologyDetector.Capability cap = detector.capabilityForDisplay(e.getKey());
+                if (cap == null) continue;
+                if (cap == TechnologyDetector.Capability.DEVOPS) continue;
+                double w = detector.weightForStrength(e.getValue()) * q;
+                repoCapMax.merge(cap, w, Math::max);
+            }
+            for (Map.Entry<TechnologyDetector.Capability, Double> entry : repoCapMax.entrySet()) {
+                perCap.get(entry.getKey()).add(entry.getValue());
+            }
+        }
+        double backendEff = diminishingSum(perCap.get(TechnologyDetector.Capability.BACKEND));
+        double frontendEff = diminishingSum(perCap.get(TechnologyDetector.Capability.FRONTEND));
+        double databaseEff = diminishingSum(perCap.get(TechnologyDetector.Capability.DATABASE));
+        double aiEff = diminishingSum(perCap.get(TechnologyDetector.Capability.AI));
+
+        // If no effective signals at all, fall back to empty
+        if (backendEff == 0 && frontendEff == 0 && databaseEff == 0 && aiEff == 0) return score(Map.of());
+
+        int backend = toScoreWeighted(backendEff);
+        int frontend = toScoreWeighted(frontendEff);
+        int database = toScoreWeighted(databaseEff);
+        int ai = toScoreWeighted(aiEff);
+
+        int overall = computeOverall(backend, frontend, database, ai);
+        DeveloperScoreDTO dto = new DeveloperScoreDTO();
+        dto.setBackendScore(backend);
+        dto.setFrontendScore(frontend);
+        dto.setDatabaseScore(database);
+        dto.setAiScore(ai);
+        dto.setOverallScore(overall);
+        return dto;
+    }
+
+    // Diminishing returns: harmonic decay 1/(1+0.38*i), sorted descending ensures strong first
+    double diminishingSum(List<Double> weights) {
+        if (weights == null || weights.isEmpty()) return 0;
+        weights.sort(java.util.Collections.reverseOrder());
+        double sum = 0;
+        for (int i = 0; i < weights.size(); i++) {
+            double decay = 1.0 / (1.0 + 0.38 * i);
+            sum += weights.get(i) * decay;
+        }
+        return sum;
+    }
+
+    // Repository quality 0.35-1.0, stack-neutral, explainable
+    double qualityFactor(com.soubhagya.devscout.dto.GitHubRepoDTO repo) {
+        double q = 1.0;
+        if (repo.isFork()) q *= 0.65;
+        if (repo.isArchived()) q *= 0.80;
+        int size = repo.getSize();
+        if (size < 20) q *= 0.60;
+        else if (size < 80) q *= 0.82;
+        // stars: small bonus, not dominant
+        int stars = repo.getStars();
+        if (stars >= 10) q *= 1.08;
+        else if (stars >= 3) q *= 1.03;
+        // recency
+        String rec = classifyRecency(repo);
+        if ("RECENT".equals(rec)) q *= 1.0;
+        else if ("ACTIVE".equals(rec)) q *= 0.92;
+        else if ("STALE".equals(rec)) q *= 0.70;
+        else q *= 0.85; // UNKNOWN
+        if (q < 0.35) q = 0.35;
+        if (q > 1.0) q = 1.0;
+        return q;
+    }
+
+    String classifyRecency(com.soubhagya.devscout.dto.GitHubRepoDTO repo) {
+        String ts = repo.getPushed_at() != null ? repo.getPushed_at() : repo.getUpdated_at();
+        if (ts == null || ts.isBlank()) return "UNKNOWN";
+        try {
+            java.time.Instant instant = java.time.Instant.parse(ts);
+            long days = java.time.Duration.between(instant, java.time.Instant.now()).toDays();
+            if (days <= 90) return "RECENT";
+            if (days <= 365) return "ACTIVE";
+            return "STALE";
+        } catch (Exception e) {
+            return "UNKNOWN";
+        }
     }
 
     private DeveloperScoreDTO scoreFromCounts(int backendCount, int frontendCount, int databaseCount, int aiCount) {

@@ -22,5 +22,7 @@ public class DeveloperAnalysisData {
     private int aiScore;
     private int overallScore;
 
+    private String experienceLevel;
+
     private List<String> repositorySummaries;
 }

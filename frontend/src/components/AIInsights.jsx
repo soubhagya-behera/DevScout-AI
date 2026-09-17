@@ -54,12 +54,12 @@ function AIInsights({ analysis }) {
     <div className="insights">
       {isFallback && (
         <div className="ai-fallback-notice" role="note">
-          AI insights temporarily unavailable — showing deterministic fallback based on detected evidence.
+          Gemini insights are unavailable. This section is showing a deterministic summary based on GitHub evidence.
         </div>
       )}
       <div className="panel insights-level">
-        <span className="insights-label">AI-assessed level</span>
-        <span className="level-tag level-tag-large" title="AI interpretation of GitHub evidence, not a verified fact">{level}</span>
+        <span className="insights-label">{isFallback ? "GitHub evidence level" : "AI-assessed level"}</span>
+        <span className="level-tag level-tag-large" title={isFallback ? "Deterministic evidence level from backend, not AI" : "AI interpretation of GitHub evidence, not a verified fact"}>{level}</span>
       </div>
 
       <div className="insights-grid">
@@ -102,7 +102,7 @@ function AIInsights({ analysis }) {
 
       <div className="panel hiring-callout">
         <span className="hiring-status">
-          <CheckIcon /> Recommended
+          <CheckIcon /> {isFallback ? "Deterministic summary" : "Recommended"}
         </span>
         <p className="hiring-text">{hiring}</p>
       </div>
