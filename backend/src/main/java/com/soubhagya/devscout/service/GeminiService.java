@@ -151,12 +151,34 @@ No explanations.
         formatList(data.getRepositorySummaries())
 );
 
-        return sendPrompt(prompt);
+        return sendPromptWithValidation(prompt, data);
 
     } catch (Exception e) {
         return buildStackNeutralFallback(data);
     }
 }
+
+    /**
+     * Minimal fix: single Gemini call, then lightweight validation.
+     * If the response is truncated/incomplete (missing section markers),
+     * fall back to the deterministic summary WITHOUT another Gemini request.
+     */
+    private String sendPromptWithValidation(String prompt, DeveloperAnalysisData data) {
+        String text = sendPrompt(prompt);
+        if (!hasRequiredMarkers(text)) {
+            return buildStackNeutralFallback(data);
+        }
+        return text;
+    }
+
+    static boolean hasRequiredMarkers(String text) {
+        if (text == null) return false;
+        String upper = text.toUpperCase();
+        return upper.contains("LEVEL:")
+                && upper.contains("TOP_STRENGTHS:")
+                && upper.contains("IMPROVEMENTS:")
+                && upper.contains("HIRING_RECOMMENDATION:");
+    }
 
     String buildStackNeutralFallback(DeveloperAnalysisData data) {
         Map<String,Integer> techs = data.getTechnologies();
@@ -228,9 +250,14 @@ private String sendPrompt(
                     "generationConfig",
                     Map.of(
                             "maxOutputTokens",
-                            300,
+                            200,
                             "temperature",
-                            0.2
+                            0.2,
+                            "thinkingConfig",
+                            Map.of(
+                                    "thinkingBudget",
+                                    0
+                            )
                     )
             );
 
@@ -256,14 +283,28 @@ private String sendPrompt(
                         response.getBody()
                 );
 
-        return root
+        JsonNode parts =
+                root
                 .path("candidates")
                 .get(0)
                 .path("content")
-                .path("parts")
-                .get(0)
-                .path("text")
-                .asText();
+                .path("parts");
+
+        // Robust extraction: concatenate all non-thought text parts
+        // instead of blindly assuming parts[0] holds the full answer.
+        StringBuilder textBuilder = new StringBuilder();
+        if (parts != null && parts.isArray()) {
+            for (JsonNode part : parts) {
+                if (part.path("thought").asBoolean(false)) {
+                    continue;
+                }
+                if (part.hasNonNull("text")) {
+                    textBuilder.append(part.path("text").asText(""));
+                }
+            }
+        }
+
+        return textBuilder.toString().trim();
 
     } catch (Exception e) {
 
