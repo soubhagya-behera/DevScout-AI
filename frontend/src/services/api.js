@@ -1,7 +1,25 @@
 import axios from "axios";
 
-const BASE_URL =
-  (import.meta.env.VITE_API_BASE_URL || "https://devscout-ai-backend.onrender.com/api/github").replace(/\/$/, "");
+const API_PATH = "/api/github";
+
+function resolveBaseUrl() {
+  const configured = (import.meta.env.VITE_API_BASE_URL || "")
+    .trim()
+    .replace(/\/$/, "");
+  if (configured) {
+    return configured.endsWith(API_PATH)
+      ? configured
+      : `${configured}${API_PATH}`;
+  }
+  if (import.meta.env.DEV) {
+    throw new Error(
+      "VITE_API_BASE_URL is not set. Add it to frontend/.env.development for local development."
+    );
+  }
+  return `https://devscout-ai-backend.onrender.com${API_PATH}`;
+}
+
+const BASE_URL = resolveBaseUrl();
 
 export const getUnifiedReport =
   async (username) => {
