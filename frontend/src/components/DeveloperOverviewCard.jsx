@@ -1,40 +1,13 @@
-import { useCountUp } from "../hooks/useCountUp";
+import GitHubAvatar from "./GitHubAvatar";
 
-function ScoreRing({ value, size = 96, strokeWidth = 6 }) {
-  const animated = useCountUp(value, { duration: 1200, delay: 300 });
-  const radius = (size - strokeWidth) / 2;
-  const circumference = 2 * Math.PI * radius;
-  const offset = circumference * (1 - animated / 100);
-
-  return (
-    <div className="score-ring" style={{ width: size, height: size }}>
-      <svg width={size} height={size} aria-hidden="true">
-        <circle
-          className="score-ring-track"
-          cx={size / 2}
-          cy={size / 2}
-          r={radius}
-          fill="none"
-          strokeWidth={strokeWidth}
-        />
-        <circle
-          className="score-ring-progress"
-          cx={size / 2}
-          cy={size / 2}
-          r={radius}
-          fill="none"
-          strokeWidth={strokeWidth}
-          strokeDasharray={circumference}
-          strokeDashoffset={offset}
-          strokeLinecap="round"
-        />
-      </svg>
-      <div className="score-ring-value">{animated}</div>
-    </div>
-  );
-}
-
-function DeveloperOverviewCard({ profile, report, username, overallScore }) {
+function DeveloperOverviewCard({
+  profile,
+  report,
+  username,
+  overallScore,
+  onDownload,
+  onNewAnalysis,
+}) {
   const level =
     overallScore >= 80
       ? "Expert"
@@ -44,10 +17,12 @@ function DeveloperOverviewCard({ profile, report, username, overallScore }) {
           ? "Intermediate"
           : "Beginner";
 
-  const profileType = report?.profileType || level;
+  const displayName = username || report?.username || "Unknown";
+  const profileType = report?.profileType || "Unknown";
   const confidence = report?.confidence;
   const experience = report?.experienceLevel || level;
-  const specialization = report?.specialization;
+  const primaryLanguage =
+    report?.primaryLanguage || profile?.primaryLanguage || "Unknown";
   const totalStars = report?.totalStars ?? 0;
   const meaningful = report?.meaningfulRepositories ?? profile?.totalRepositories ?? 0;
 
@@ -55,37 +30,64 @@ function DeveloperOverviewCard({ profile, report, username, overallScore }) {
     <section className="panel overview-panel">
       <div className="overview-main">
         <div className="overview-identity">
-          <div className="avatar avatar-xl" aria-hidden="true">
-            {(username || report?.username || "?").charAt(0).toUpperCase()}
-          </div>
+          <GitHubAvatar
+            username={username || report?.username}
+            avatarUrl={report?.avatarUrl || profile?.avatarUrl}
+          />
           <div className="overview-identity-text">
-            <h3 className="overview-name">{username || report?.username || "Unknown"}</h3>
-            <div className="overview-meta">
-              <span>{profileType}</span>
-              {specialization && specialization !== "GENERAL" && (
-                <span className="overview-specialization"> · {specialization}</span>
-              )}
+            <h3 className="overview-name">{displayName}</h3>
+            <a
+              className="dashboard-sub"
+              href={`https://github.com/${encodeURIComponent(username || report?.username || "")}`}
+              target="_blank"
+              rel="noreferrer"
+            >
+              github.com/{username || report?.username}
+            </a>
+            <div className="dashboard-badges">
+              <span className="profile-badge">{profileType}</span>
               {confidence && (
-                <span className={`overview-confidence confidence-${confidence.toLowerCase()}`}> · {confidence} confidence</span>
+                <span className={`confidence-badge confidence-${confidence.toLowerCase()}`}>
+                  Confidence: {confidence}
+                </span>
               )}
-            </div>
-            <div className="overview-tags">
-              <span className="level-tag" title="Overall GitHub evidence score level">{level}</span>
-              <span className="evidence-tag" title={report?.experienceEvidence || "GitHub evidence depth"}>
-                {experience} · GitHub evidence
-              </span>
+              {experience && (
+                <span className="experience-badge" title="Represents GitHub evidence depth, not employment years">
+                  {experience} · GitHub evidence
+                </span>
+              )}
             </div>
           </div>
         </div>
 
-        <div className="overview-score">
-          <ScoreRing value={overallScore} />
-          <span className="overview-score-label">GitHub evidence score</span>
-          <span className="overview-score-hint">0–100 · deterministic</span>
+        <div className="overview-side">
+          <div className="overview-actions">
+            <button
+              type="button"
+              className="btn btn-secondary"
+              onClick={onDownload}
+              aria-label="Export report as PDF"
+            >
+              Export PDF
+            </button>
+            <button
+              type="button"
+              className="btn btn-primary"
+              onClick={onNewAnalysis}
+              aria-label="Start new analysis"
+            >
+              New analysis
+            </button>
+          </div>
         </div>
       </div>
 
       <div className="overview-stats">
+        <div className="overview-stat">
+          <span className="overview-stat-value">{overallScore}</span>
+          <span className="overview-stat-label">GitHub evidence score</span>
+          <span className="overview-stat-sub">{level}</span>
+        </div>
         <div className="overview-stat">
           <span className="overview-stat-value">
             {profile?.totalRepositories ?? 0}
@@ -95,7 +97,7 @@ function DeveloperOverviewCard({ profile, report, username, overallScore }) {
         </div>
         <div className="overview-stat">
           <span className="overview-stat-value">
-            {profile?.primaryLanguage ?? "Unknown"}
+            {primaryLanguage}
           </span>
           <span className="overview-stat-label">Primary language</span>
           <span className="overview-stat-sub">by repo count</span>
@@ -104,11 +106,6 @@ function DeveloperOverviewCard({ profile, report, username, overallScore }) {
           <span className="overview-stat-value">{totalStars}</span>
           <span className="overview-stat-label">Stars earned</span>
           <span className="overview-stat-sub">across repos</span>
-        </div>
-        <div className="overview-stat">
-          <span className="overview-stat-value">{experience}</span>
-          <span className="overview-stat-label">Evidence depth</span>
-          <span className="overview-stat-sub" title="Based on GitHub evidence, not employment">not employment years</span>
         </div>
       </div>
     </section>

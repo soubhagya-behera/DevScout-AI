@@ -164,6 +164,64 @@ button:focus-visible {
   border-radius: 10px;
 }
 
+/* ---------- GitHub profile avatar (report identity cards) ---------- */
+
+.github-avatar {
+  width: 96px;
+  height: 96px;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  overflow: hidden;
+  flex-shrink: 0;
+  background: var(--surface-hover);
+  border: 1px solid var(--border-strong);
+  display: grid;
+  place-items: center;
+}
+
+.github-avatar-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+  display: block;
+}
+
+.github-avatar-fallback {
+  width: 100%;
+  height: 100%;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  font-size: 22px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.overview-identity {
+  min-width: 0;
+}
+
+.overview-identity-text {
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+.overview-name {
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 480px) {
+  .github-avatar {
+    width: 84px;
+    height: 84px;
+  }
+
+  .github-avatar-fallback {
+    font-size: 18px;
+  }
+}
+
 .progress-track {
   height: 4px;
   border-radius: 999px;

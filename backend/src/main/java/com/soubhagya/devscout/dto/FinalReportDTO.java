@@ -9,6 +9,8 @@ public class FinalReportDTO {
 
     private String username;
 
+    private String avatarUrl;
+
     private int overallScore;
     private int backendScore;
     private int frontendScore;

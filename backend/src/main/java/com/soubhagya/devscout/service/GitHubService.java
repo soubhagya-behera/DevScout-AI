@@ -317,6 +317,36 @@ public class GitHubService {
         return resp.getBody();
     }
 
+    /**
+     * Fetches the GitHub user's avatar URL from the existing GitHub user/profile API.
+     * Fault-tolerant: never throws, never breaks report generation, never uses Gemini.
+     * Falls back to the deterministic public avatar URL (github.com/{user}.png redirects
+     * to the user's avatar) so the UI always has a usable image URL. Result is cached
+     * as part of the report (no separate avatar cache, no new endpoint).
+     */
+    String fetchAvatarUrl(String username) {
+        String normalized = normalizeKey(username);
+        if (normalized.isEmpty()) return null;
+        String fallback = "https://github.com/" + normalized + ".png";
+        try {
+            if (githubToken == null || githubToken.isBlank()) return fallback;
+            String url = "https://api.github.com/users/" + normalized;
+            HttpHeaders headers = new HttpHeaders();
+            headers.setBearerAuth(githubToken);
+            headers.set("Accept", "application/vnd.github.v3+json");
+            HttpEntity<String> entity = new HttpEntity<>(headers);
+            ResponseEntity<Map> resp = restTemplate.exchange(url, HttpMethod.GET, entity, Map.class);
+            Map body = resp.getBody();
+            if (body == null) return null;
+            Object avatar = body.get("avatar_url");
+            if (avatar == null) return fallback;
+            String avatarUrl = avatar.toString().trim();
+            return avatarUrl.isEmpty() ? fallback : avatarUrl;
+        } catch (Exception e) {
+            return fallback;
+        }
+    }
+
     String fetchManifestEvidence(String owner, String repo) {
         String normalizedOwner = normalizeKey(owner);
         String listUrl = "https://api.github.com/repos/" + normalizedOwner + "/" + repo + "/contents";
@@ -652,6 +682,12 @@ public class GitHubService {
 
         report.setUsername(display);
 
+        // GitHub profile avatar: single user/profile API read, never Gemini, never fatal.
+        try {
+            report.setAvatarUrl(fetchAvatarUrl(normalizedKey));
+        } catch (Exception ignored) {
+        }
+
         report.setOverallScore(
                 score.getOverallScore()
         );
@@ -835,6 +871,10 @@ public class GitHubService {
         dto.setPrimaryLanguage(
                 primaryLanguage
         );
+        try {
+            dto.setAvatarUrl(fetchAvatarUrl(key));
+        } catch (Exception ignored) {
+        }
         return dto;
     }
 

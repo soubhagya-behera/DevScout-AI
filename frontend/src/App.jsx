@@ -67,6 +67,7 @@ function App() {
           username: reportData.username,
           totalRepositories: reportData.totalRepositories,
           primaryLanguage: reportData.primaryLanguage || "Unknown",
+          avatarUrl: reportData.avatarUrl || null,
         };
         setProfile(derivedProfile);
         setLanguages(reportData.languages || {});

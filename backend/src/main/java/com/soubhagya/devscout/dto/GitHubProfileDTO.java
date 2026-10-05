@@ -10,4 +10,6 @@ public class GitHubProfileDTO {
     private int totalRepositories;
 
     private String primaryLanguage;
+
+    private String avatarUrl;
 }

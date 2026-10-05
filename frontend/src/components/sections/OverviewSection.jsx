@@ -3,7 +3,7 @@ import ScoreCard from "../ScoreCard";
 import RadarSkillChart from "../RadarSkillChart";
 import SkillProgress from "../SkillProgress";
 
-function OverviewSection({ profile, report, username, languages }) {
+function OverviewSection({ profile, report, username, languages, onDownload, onNewAnalysis }) {
   const languageEntries = Object.entries(languages || {})
     .sort((a, b) => b[1] - a[1])
     .slice(0, 6);
@@ -20,6 +20,8 @@ function OverviewSection({ profile, report, username, languages }) {
         report={report}
         username={username}
         overallScore={report.overallScore}
+        onDownload={onDownload}
+        onNewAnalysis={onNewAnalysis}
       />
 
       <section className="panel skills-panel">
