@@ -20,9 +20,13 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpStatusCodeException;
+import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestTemplate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -53,7 +57,26 @@ public class GitHubService {
     @Value("${devscout.cache.max-entries:500}")
     private int cacheMaxEntries = 500;
 
-    private final RestTemplate restTemplate = new RestTemplate();
+    private final RestTemplate restTemplate = createRestTemplate();
+
+    private static final Logger log = LoggerFactory.getLogger(GitHubService.class);
+
+    /**
+     * HTTP resilience: explicit timeouts so a transient TCP stall fails fast
+     * instead of blocking on the OS connect timeout (~22s on Windows).
+     */
+    static final int REPOS_CONNECT_TIMEOUT_MS = 5000;
+    static final int REPOS_READ_TIMEOUT_MS = 15000;
+    /** Exactly one retry (two attempts total) for the repository-list GET. */
+    static final int MAX_REPOS_ATTEMPTS = 2;
+    static final long REPOS_RETRY_BACKOFF_MS = 400;
+
+    private static RestTemplate createRestTemplate() {
+        SimpleClientHttpRequestFactory factory = new SimpleClientHttpRequestFactory();
+        factory.setConnectTimeout(REPOS_CONNECT_TIMEOUT_MS);
+        factory.setReadTimeout(REPOS_READ_TIMEOUT_MS);
+        return new RestTemplate(factory);
+    }
 
     private final GeminiService geminiService;
     private final TechnologyDetector technologyDetector;
@@ -153,47 +176,90 @@ public class GitHubService {
         HttpEntity<String> entity =
                 new HttpEntity<>(headers);
 
-        try {
-            ResponseEntity<List<GitHubRepoDTO>> response =
-                    restTemplate.exchange(
-                            url,
-                            HttpMethod.GET,
-                            entity,
-                            new ParameterizedTypeReference<List<GitHubRepoDTO>>() {}
-                    );
-            List<GitHubRepoDTO> body = response.getBody();
-            return body == null ? List.of() : body;
-        } catch (HttpStatusCodeException e) {
-            int status = e.getStatusCode().value();
-            if (status == 404) {
-                throw new GitHubUserNotFoundException(normalized, e);
-            }
-            if (status == 429) {
-                throw new GitHubRateLimitException("GitHub rate limit exceeded for user: " + normalized, e);
-            }
-            if (status == 403) {
-                String body = e.getResponseBodyAsString();
-                String lower = body == null ? "" : body.toLowerCase();
-                if (lower.contains("rate limit") || lower.contains("rate_limit") || lower.contains("too many requests")) {
-                    throw new GitHubRateLimitException("GitHub rate limit exceeded (403) for user: " + normalized, e);
+        // Read-only GET: exactly one retry on transient network failures only.
+        // HTTP status errors are never retried (see mapReposStatusException).
+        ResourceAccessException networkFailure = null;
+        for (int attempt = 1; attempt <= MAX_REPOS_ATTEMPTS; attempt++) {
+            try {
+                ResponseEntity<List<GitHubRepoDTO>> response =
+                        fetchReposResponse(
+                                url,
+                                entity
+                        );
+                List<GitHubRepoDTO> body = response.getBody();
+                return body == null ? List.of() : body;
+            } catch (HttpStatusCodeException e) {
+                throw mapReposStatusException(e, normalized);
+            } catch (org.springframework.web.client.ResourceAccessException e) {
+                networkFailure = e;
+                if (attempt < MAX_REPOS_ATTEMPTS) {
+                    log.warn("GitHub repository request failed for user {} (attempt {}/{}); retrying once",
+                            normalized, attempt, MAX_REPOS_ATTEMPTS);
+                    sleepBeforeRetry();
                 }
-                throw new GitHubAuthException("GitHub authentication/configuration failure for user: " + normalized, e);
+            } catch (org.springframework.web.client.RestClientException e) {
+                // fallback for other network-level failures not covered above (do not map to 404/auth)
+                String msg = e.getMessage() == null ? "" : e.getMessage().toLowerCase();
+                if (msg.contains("timeout") || msg.contains("connect") || msg.contains("unavailable") || msg.contains("refused")) {
+                    throw new GitHubUnavailableException("GitHub is temporarily unavailable for user: " + normalized, e);
+                }
+                throw e;
             }
-            throw e;
-        } catch (org.springframework.web.client.ResourceAccessException e) {
-            String msg = e.getMessage() == null ? "" : e.getMessage().toLowerCase();
-            if (msg.contains("timeout") || msg.contains("timed out") || msg.contains("connect") || msg.contains("read")) {
-                throw new GitHubUnavailableException("GitHub connection timed out for user: " + normalized, e);
-            }
-            throw new GitHubUnavailableException("GitHub is temporarily unavailable for user: " + normalized, e);
-        } catch (org.springframework.web.client.RestClientException e) {
-            // fallback for other network-level failures not covered above (do not map to 404/auth)
-            String msg = e.getMessage() == null ? "" : e.getMessage().toLowerCase();
-            if (msg.contains("timeout") || msg.contains("connect") || msg.contains("unavailable") || msg.contains("refused")) {
-                throw new GitHubUnavailableException("GitHub is temporarily unavailable for user: " + normalized, e);
-            }
-            throw e;
         }
+        throw mapResourceAccessException(networkFailure, normalized);
+    }
+
+    // Separated for tests (spy-stubbed to simulate network failures without real HTTP).
+    ResponseEntity<List<GitHubRepoDTO>> fetchReposResponse(String url, HttpEntity<String> entity) {
+        return restTemplate.exchange(
+                url,
+                HttpMethod.GET,
+                entity,
+                new ParameterizedTypeReference<List<GitHubRepoDTO>>() {}
+        );
+    }
+
+    private RuntimeException mapReposStatusException(HttpStatusCodeException e, String normalized) {
+        int status = e.getStatusCode().value();
+        if (status == 404) {
+            return new GitHubUserNotFoundException(normalized, e);
+        }
+        if (status == 429) {
+            return new GitHubRateLimitException("GitHub rate limit exceeded for user: " + normalized, e);
+        }
+        if (status == 403) {
+            String body = e.getResponseBodyAsString();
+            String lower = body == null ? "" : body.toLowerCase();
+            if (lower.contains("rate limit") || lower.contains("rate_limit") || lower.contains("too many requests")) {
+                return new GitHubRateLimitException("GitHub rate limit exceeded (403) for user: " + normalized, e);
+            }
+            return new GitHubAuthException("GitHub authentication/configuration failure for user: " + normalized, e);
+        }
+        return e;
+    }
+
+    private GitHubUnavailableException mapResourceAccessException(
+            org.springframework.web.client.ResourceAccessException e, String normalized) {
+        String msg = e == null || e.getMessage() == null ? "" : e.getMessage().toLowerCase();
+        if (msg.contains("timeout") || msg.contains("timed out") || msg.contains("connect")
+                || msg.contains("read")) {
+            return new GitHubUnavailableException("GitHub connection timed out for user: " + normalized, e);
+        }
+        return new GitHubUnavailableException("GitHub is temporarily unavailable for user: " + normalized, e);
+    }
+
+    void sleepBeforeRetry() {
+        try {
+            Thread.sleep(REPOS_RETRY_BACKOFF_MS);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new GitHubUnavailableException("GitHub repository request interrupted", e);
+        }
+    }
+
+    // Visible for tests
+    RestTemplate getRestTemplateForTests() {
+        return restTemplate;
     }
 
     /**
