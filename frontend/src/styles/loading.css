@@ -42,19 +42,13 @@
   line-height: 1.4;
 }
 
-.loading-spinner {
-  width: 20px;
-  height: 20px;
-  border: 2px solid var(--border-strong);
-  border-top-color: var(--text);
-  border-radius: 50%;
-  animation: spin 0.9s linear infinite;
+.loading-percent {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
   flex-shrink: 0;
   margin-top: 2px;
-}
-
-@keyframes spin {
-  to { transform: rotate(360deg); }
 }
 
 .loading-progress {
@@ -62,23 +56,120 @@
   border-radius: 999px;
   background: var(--border);
   overflow: hidden;
-}
-
-.loading-progress--indeterminate .loading-progress-fill {
-  width: 40%;
-  background: var(--text-secondary);
-  border-radius: 999px;
-  animation: indeterminate 1.4s ease-in-out infinite;
-}
-
-@keyframes indeterminate {
-  0% { transform: translateX(-100%); }
-  50% { transform: translateX(60%); }
-  100% { transform: translateX(250%); }
+  margin-top: 16px;
 }
 
 .loading-progress-fill {
   height: 100%;
+  background: var(--text-secondary);
+  border-radius: 999px;
+  transition: width 0.15s linear;
+}
+
+/* ---------- Staged pipeline ---------- */
+
+.loading-stages {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  margin: 16px 0 0;
+  padding: 0;
+}
+
+.loading-stage {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  min-width: 0;
+}
+
+.stage-indicator {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  margin-top: 1px;
+  display: grid;
+  place-items: center;
+  color: var(--text);
+}
+
+.loading-stage--done .stage-indicator {
+  border: 1px solid var(--border-strong);
+  background: var(--surface-hover);
+}
+
+.loading-stage--active .stage-indicator {
+  border: 1px solid var(--text-secondary);
+  animation: stagePulse 1.6s ease-in-out infinite;
+}
+
+.loading-stage--active .stage-indicator::after {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--text);
+}
+
+.loading-stage--upcoming .stage-indicator {
+  border: 1px solid var(--border);
+}
+
+@keyframes stagePulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.45;
+  }
+}
+
+.loading-stage-text {
+  min-width: 0;
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.loading-stage-label {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text);
+  overflow-wrap: break-word;
+}
+
+.loading-stage--upcoming .loading-stage-label {
+  color: var(--text-muted);
+  font-weight: 400;
+}
+
+.loading-stage-detail {
+  font-size: 12px;
+  color: var(--text-muted);
+  line-height: 1.4;
+  overflow-wrap: break-word;
+}
+
+.loading-ready .loading-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.loading-ready .loading-title::before {
+  content: "";
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 1px solid var(--border-strong);
+  background:
+    var(--surface-hover) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' fill='none'%3E%3Cpath d='M2.2 6.4 5 9 9.8 3.4' stroke='%23fafafa' stroke-width='1.7' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")
+    center / 8px 8px no-repeat;
+  flex-shrink: 0;
 }
 
 .loading-hint {
@@ -86,6 +177,16 @@
   font-size: 12px;
   color: var(--text-faint);
   line-height: 1.5;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .loading-stage--active .stage-indicator {
+    animation: none;
+  }
+
+  .loading-progress-fill {
+    transition: none;
+  }
 }
 
 @media (max-width: 768px) {

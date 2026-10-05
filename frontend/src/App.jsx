@@ -17,6 +17,8 @@ function App() {
   const [languages, setLanguages] = useState(null);
   const [repoAnalysis, setRepoAnalysis] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [finishing, setFinishing] = useState(false);
+  const [runId, setRunId] = useState(0);
   const [error, setError] = useState("");
   const requestIdRef = useRef(0);
 
@@ -39,9 +41,11 @@ function App() {
 
     const requestId = requestIdRef.current + 1;
     requestIdRef.current = requestId;
+    setRunId(requestId);
 
     setError("");
     setLoading(true);
+    setFinishing(false);
     setReport(null);
     setProfile(null);
     setLanguages(null);
@@ -77,9 +81,13 @@ function App() {
           setRepoAnalysis([]);
         }
         window.setTimeout(() => {
+          if (!isCurrent()) return;
+          setFinishing(true);
+        }, 0);
+        window.setTimeout(() => {
           finishLoading();
           scrollToDashboard();
-        }, 320);
+        }, 500);
       })
       .catch((err) => {
         if (!isCurrent()) return;
@@ -129,7 +137,11 @@ function App() {
         />
 
         {loading && (
-          <LoadingSequence username={username} />
+          <LoadingSequence
+            key={runId}
+            username={username}
+            phase={finishing ? "ready" : "active"}
+          />
         )}
 
         {!loading && !report && <ProductPreview />}

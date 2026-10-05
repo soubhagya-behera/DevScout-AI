@@ -395,6 +395,14 @@
     padding: 12px 16px;
   }
 
+  .loading-sequence {
+    padding: 20px;
+  }
+
+  .loading-stages {
+    gap: 8px;
+  }
+
   .repo-grid {
     grid-template-columns: 1fr;
     padding: 12px 16px 16px;
