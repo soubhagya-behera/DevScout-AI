@@ -110,7 +110,7 @@
 
 /* Compact dashboard spacing when analyzed */
 .app.has-dashboard .dashboard {
-  margin-top: 32px;
+  margin-top: 12px;
 }
 
 .app.has-dashboard .dashboard-inner {

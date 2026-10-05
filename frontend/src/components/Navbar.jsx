@@ -7,7 +7,11 @@ function Navbar() {
           className="brand"
           aria-label="DevScout home"
         >
-          <span className="brand-mark" aria-hidden="true"></span>
+          <img
+            className="brand-mark"
+            src="/DevScout-logo.png"
+            alt="DevScout logo"
+          />
           <span className="brand-name">DevScout</span>
         </a>
 

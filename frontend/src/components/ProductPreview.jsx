@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import GitHubAvatar from "./GitHubAvatar";
 import { useCountUp } from "../hooks/useCountUp";
 
 const PREVIEW_SKILLS = [
@@ -66,11 +67,11 @@ function ProductPreview() {
           <div className="preview-main">
             <div className="preview-header">
               <div className="preview-user">
-                <div className="avatar avatar-lg">S</div>
+                <GitHubAvatar username="soubhagya-behera" />
                 <div className="preview-user-text">
                   <div className="preview-name">soubhagya</div>
                   <div className="preview-meta">
-                    Full-Stack Developer · github.com/soubhagya
+                    Full-Stack Developer · github.com/soubhagya-behera
                   </div>
                 </div>
               </div>

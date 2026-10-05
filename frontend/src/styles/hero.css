@@ -1,7 +1,7 @@
 /* ---------- Hero + search ---------- */
 
 .hero {
-  padding: 96px 16px 48px;
+  padding: 96px 16px 24px;
   text-align: center;
   display: flex;
   flex-direction: column;
@@ -145,5 +145,5 @@
 
 /* Compact hero when dashboard is visible (analyzed state) */
 .app.has-dashboard .hero {
-  padding: 48px 16px 32px;
+  padding: 48px 16px 16px;
 }

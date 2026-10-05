@@ -1,7 +1,7 @@
 /* ---------- Product preview ---------- */
 
 .preview-section {
-  padding: 96px 16px 0;
+  padding: 48px 16px 0;
 }
 
 .preview-heading {
@@ -35,7 +35,6 @@
 
 .preview-window {
   display: flex;
-  min-height: 420px;
 }
 
 .preview-sidebar {
@@ -80,6 +79,16 @@
   display: flex;
   align-items: center;
   gap: 12px;
+}
+
+/* Demo avatar keeps the preview dimensions (slightly larger than before). */
+.preview-user .github-avatar {
+  width: 44px;
+  height: 44px;
+}
+
+.preview-user .github-avatar-fallback {
+  font-size: 16px;
 }
 
 .preview-name {
@@ -158,7 +167,7 @@
   text-transform: uppercase;
   letter-spacing: 0.05em;
   color: var(--text-muted);
-  margin-bottom: 12px;
+  margin-bottom: 10px;
 }
 
 .preview-bar {
@@ -182,12 +191,12 @@
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
-  margin-bottom: 12px;
+  margin-bottom: 8px;
 }
 
 .preview-insight {
   border-top: 1px solid var(--border);
-  padding-top: 10px;
+  padding-top: 8px;
 }
 
 .preview-insight-label {
