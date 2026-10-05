@@ -75,9 +75,6 @@ function DeveloperOverviewCard({ profile, report, username, overallScore }) {
                 {experience} · GitHub evidence
               </span>
             </div>
-            {report?.evidenceSummary && (
-              <p className="overview-evidence-summary">{report.evidenceSummary}</p>
-            )}
           </div>
         </div>
 
