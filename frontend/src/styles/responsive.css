@@ -395,6 +395,15 @@
     padding: 12px 16px;
   }
 
+  .insights-level .level-tag-large {
+    height: auto;
+    min-height: 32px;
+    max-width: 60%;
+    padding: 6px 14px;
+    white-space: normal;
+    line-height: 1.4;
+  }
+
   .loading-sequence {
     padding: 20px;
   }
