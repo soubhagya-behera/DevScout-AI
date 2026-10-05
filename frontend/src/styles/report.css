@@ -154,6 +154,7 @@
 
 .repo-card-header {
   display: flex;
+  flex-wrap: wrap;
   justify-content: space-between;
   align-items: flex-start;
   gap: 12px;
@@ -165,7 +166,7 @@
   font-size: 13px;
   font-weight: 600;
   color: var(--text);
-  flex: 1 1 auto;
+  flex: 1 1 160px;
   min-width: 0;
   overflow-wrap: break-word;
   word-break: normal;
