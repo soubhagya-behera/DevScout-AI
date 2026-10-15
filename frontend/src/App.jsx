@@ -10,6 +10,9 @@ import {
 } from "./services/api";
 import "./styles/App.css";
 
+// Mirrors server-side GitHubUsernameValidator: 1-39 chars, alphanum/single hyphens, no leading/trailing/consecutive hyphen.
+const GITHUB_USERNAME_RE = /^(?!.*--)[a-z0-9](?:[a-z0-9-]{0,37}[a-z0-9])?$/i;
+
 function App() {
   const [username, setUsername] = useState("");
   const [report, setReport] = useState(null);
@@ -34,8 +37,13 @@ function App() {
   };
 
   const handleAnalyze = () => {
-    if (!username.trim()) {
+    const trimmed = username.trim();
+    if (!trimmed) {
       setError("Please enter a GitHub username");
+      return;
+    }
+    if (!GITHUB_USERNAME_RE.test(trimmed)) {
+      setError("Please enter a valid GitHub username.");
       return;
     }
 
@@ -60,8 +68,6 @@ function App() {
       settled = true;
       setLoading(false);
     };
-
-    const trimmed = username.trim();
 
     getUnifiedReport(trimmed)
       .then((reportData) => {

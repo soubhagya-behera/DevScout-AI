@@ -13,6 +13,7 @@ import com.soubhagya.devscout.exception.GitHubAuthException;
 import com.soubhagya.devscout.exception.GitHubRateLimitException;
 import com.soubhagya.devscout.exception.GitHubUnavailableException;
 import com.soubhagya.devscout.exception.GitHubUserNotFoundException;
+import com.soubhagya.devscout.util.GitHubUsernameValidator;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
@@ -161,11 +162,11 @@ public class GitHubService {
     }
 
     public List<GitHubRepoDTO> getRepositories(String username) {
-        String normalized = normalizeKey(username);
+        String normalized = GitHubUsernameValidator.validate(username);
         // normalize for GitHub API call as well (GitHub is case-insensitive)
         String url =
                 "https://api.github.com/users/"
-                        + normalized
+                        + GitHubUsernameValidator.encodePathSegment(normalized)
                         + "/repos?per_page=100";
 
         HttpHeaders headers = new HttpHeaders();
@@ -310,7 +311,9 @@ public class GitHubService {
     // Budget-aware variant: counts contents-list and manifest-file separately
     String fetchManifestEvidenceWithBudget(String owner, String repo, int[] httpUsed) {
         String normalizedOwner = normalizeKey(owner);
-        String listUrl = "https://api.github.com/repos/" + normalizedOwner + "/" + repo + "/contents";
+        String encodedOwner = GitHubUsernameValidator.encodePathSegment(normalizedOwner);
+        String encodedRepo = GitHubUsernameValidator.encodePathSegment(repo);
+        String listUrl = "https://api.github.com/repos/" + encodedOwner + "/" + encodedRepo + "/contents";
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(githubToken);
         headers.set("Accept", "application/vnd.github.v3+json");
@@ -340,7 +343,7 @@ public class GitHubService {
         if (targetFile == null) return null;
         if (httpUsed[0] >= MAX_DEEP_HTTP_CALLS) return null;
         httpUsed[0]++;
-        String fileUrl = "https://api.github.com/repos/" + normalizedOwner + "/" + repo + "/contents/" + targetFile;
+        String fileUrl = "https://api.github.com/repos/" + encodedOwner + "/" + encodedRepo + "/contents/" + GitHubUsernameValidator.encodePathSegment(targetFile);
         try {
             ResponseEntity<String> fileResp = restTemplate.exchange(fileUrl, HttpMethod.GET, entity, String.class);
             String fileBody = fileResp.getBody();
@@ -373,7 +376,7 @@ public class GitHubService {
 
     String fetchReadme(String owner, String repo) {
         String normalizedOwner = normalizeKey(owner);
-        String url = "https://api.github.com/repos/" + normalizedOwner + "/" + repo + "/readme";
+        String url = "https://api.github.com/repos/" + GitHubUsernameValidator.encodePathSegment(normalizedOwner) + "/" + GitHubUsernameValidator.encodePathSegment(repo) + "/readme";
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(githubToken);
         headers.set("Accept", "application/vnd.github.v3.raw");
@@ -393,10 +396,11 @@ public class GitHubService {
     String fetchAvatarUrl(String username) {
         String normalized = normalizeKey(username);
         if (normalized.isEmpty()) return null;
-        String fallback = "https://github.com/" + normalized + ".png";
+        String encoded = GitHubUsernameValidator.encodePathSegment(normalized);
+        String fallback = "https://github.com/" + encoded + ".png";
         try {
             if (githubToken == null || githubToken.isBlank()) return fallback;
-            String url = "https://api.github.com/users/" + normalized;
+            String url = "https://api.github.com/users/" + encoded;
             HttpHeaders headers = new HttpHeaders();
             headers.setBearerAuth(githubToken);
             headers.set("Accept", "application/vnd.github.v3+json");
@@ -415,7 +419,9 @@ public class GitHubService {
 
     String fetchManifestEvidence(String owner, String repo) {
         String normalizedOwner = normalizeKey(owner);
-        String listUrl = "https://api.github.com/repos/" + normalizedOwner + "/" + repo + "/contents";
+        String encodedOwner = GitHubUsernameValidator.encodePathSegment(normalizedOwner);
+        String encodedRepo = GitHubUsernameValidator.encodePathSegment(repo);
+        String listUrl = "https://api.github.com/repos/" + encodedOwner + "/" + encodedRepo + "/contents";
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(githubToken);
         headers.set("Accept", "application/vnd.github.v3+json");
@@ -440,7 +446,7 @@ public class GitHubService {
         else if (lower.contains("\"name\" : \"gemfile\"") || lower.contains("\"name\":\"gemfile\"")) targetFile = "Gemfile";
         else if (lower.contains("\"name\" : \"build.gradle\"") || lower.contains("\"name\":\"build.gradle\"")) targetFile = "build.gradle";
         if (targetFile == null) return null;
-        String fileUrl = "https://api.github.com/repos/" + normalizedOwner + "/" + repo + "/contents/" + targetFile;
+        String fileUrl = "https://api.github.com/repos/" + encodedOwner + "/" + encodedRepo + "/contents/" + GitHubUsernameValidator.encodePathSegment(targetFile);
         try {
             ResponseEntity<String> fileResp = restTemplate.exchange(fileUrl, HttpMethod.GET, entity, String.class);
             String fileBody = fileResp.getBody();
@@ -580,10 +586,7 @@ public class GitHubService {
      * Phase 4 canonical single pipeline with per-username single-flight and normalization.
      */
     public FinalReportDTO getOrGenerateReport(String username) {
-        if (username == null || username.trim().isEmpty()) {
-            throw new IllegalArgumentException("username must not be blank");
-        }
-        String key = normalizeKey(username);
+        String key = GitHubUsernameValidator.validate(username);
         // fast path cache hit - also invalidate stale cache entries lacking Phase 4 unified fields
         // Phase 5: touch LRU on hit, lazily remove expired
         CachedReport cached = reportCache.get(key);
@@ -914,7 +917,7 @@ public class GitHubService {
     public GitHubProfileDTO getProfile(
             String username
     ) {
-        String key = normalizeKey(username);
+        String key = GitHubUsernameValidator.validate(username);
         ProfileAnalysisDTO analysis =
                 analyzeProfile(getRepositories(key));
         GitHubProfileDTO dto =

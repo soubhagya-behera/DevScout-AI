@@ -176,4 +176,23 @@ class ReportIntegrationTest {
         when(gitHubService.getOrGenerateReport(anyString())).thenReturn(sampleReport("someuser"));
         mockMvc.perform(get("/api/github/report/someuser")).andExpect(jsonPath("$.username").value("someuser"));
     }
+
+    @Test
+    void invalidUsernameMapsTo400BadRequest() throws Exception {
+        // delegate to the real validator so MockMvc exercises the service contract
+        when(gitHubService.getOrGenerateReport(anyString())).thenAnswer(inv -> {
+            com.soubhagya.devscout.util.GitHubUsernameValidator.validate(inv.getArgument(0));
+            return sampleReport("validuser");
+        });
+        for (String bad : new String[]{"invalid!user", "-bad", "bad-", "a_b", "foo--bar"}) {
+            mockMvc.perform(get("/api/github/report/{username}", bad))
+                    .andExpect(status().isBadRequest())
+                    .andExpect(jsonPath("$.code").value("BAD_REQUEST"))
+                    .andExpect(jsonPath("$.status").value(400));
+        }
+        // valid usernames still flow through
+        mockMvc.perform(get("/api/github/report/octocat"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.username").value("validuser"));
+    }
 }
